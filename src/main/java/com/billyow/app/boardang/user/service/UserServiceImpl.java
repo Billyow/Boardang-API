@@ -24,4 +24,10 @@ public class UserServiceImpl implements IUserService{
     public Boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
 }

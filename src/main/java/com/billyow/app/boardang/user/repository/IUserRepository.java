@@ -6,4 +6,5 @@ public interface IUserRepository {
     Optional<User> findByEmail(String email);
     Optional<User> findByEmailAndIsActiveTrue(String email);
     Boolean existsByEmail(String email);
+    Optional<User> findById(Long id);
 }

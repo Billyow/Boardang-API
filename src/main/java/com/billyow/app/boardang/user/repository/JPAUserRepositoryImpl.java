@@ -8,6 +8,11 @@ public class JPAUserRepositoryImpl implements IUserRepository {
     JPAUserRepositoryImpl(IJPAUserRepository userJpaRepository) {
         this.userJpaRepository = userJpaRepository;
     }
+
+    public Optional<User> findById(Long id){
+        return userJpaRepository.findById(id);
+    }
+
     public User save(User user) {
         return userJpaRepository.save(user);
     }
