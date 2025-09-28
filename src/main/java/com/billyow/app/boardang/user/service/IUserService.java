@@ -1,0 +1,11 @@
+package com.billyow.app.boardang.user.service;
+
+import com.billyow.app.boardang.user.model.User;
+
+import java.util.Optional;
+
+public interface IUserService {
+    Optional<User> findByEmail(String email);
+    User save(User user);
+    Boolean existsByEmail(String email);
+}
