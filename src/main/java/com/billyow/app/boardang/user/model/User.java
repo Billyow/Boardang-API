@@ -1,9 +1,6 @@
 package com.billyow.app.boardang.user.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.Date;
@@ -13,6 +10,7 @@ import java.util.Date;
 public class User {
     @Id
     private Long id;
+    private String name;
     @Column(unique=true, nullable=false)
     private String email;
     @Column(nullable=false)
@@ -23,7 +21,9 @@ public class User {
     private Date createdAt;
     private Date updatedAt;
     @PrePersist
-    private void setCreationDate(){
+    private void firstCreation(){
         this.createdAt = new Date();
+        this.isActive = true;
     }
+
 }
