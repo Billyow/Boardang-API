@@ -21,7 +21,7 @@ public class User {
     private Date createdAt;
     private Date updatedAt;
     @PrePersist
-    private void firstCreation(){
+    private void prePersist(){
         this.createdAt = new Date();
         this.isActive = true;
     }
