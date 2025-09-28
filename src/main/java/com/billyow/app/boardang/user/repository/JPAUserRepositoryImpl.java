@@ -1,8 +1,6 @@
 package com.billyow.app.boardang.user.repository;
-
 import com.billyow.app.boardang.user.model.User;
 import org.springframework.stereotype.Repository;
-
 import java.util.Optional;
 @Repository
 public class JPAUserRepositoryImpl implements IUserRepository {
