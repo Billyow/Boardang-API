@@ -1,4 +1,4 @@
-package com.billyow.app.boardang.user.DTO;
+package com.billyow.app.boardang.auth.DTO;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

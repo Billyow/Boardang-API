@@ -1,9 +1,11 @@
 package com.billyow.app.boardang.user.controller;
+import com.billyow.app.boardang.user.DTO.RegisterRequest;
 import com.billyow.app.boardang.user.DTO.UserDTO;
 import com.billyow.app.boardang.user.mapper.UserMapper;
 import com.billyow.app.boardang.user.model.User;
 import com.billyow.app.boardang.user.service.IUserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/user")
@@ -19,6 +21,13 @@ public class UserController {
     public UserDTO getUserById(@PathVariable long id) {
         return userMapper.toUserDTOResponse(userService.findById(id).orElse(null));
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
+        userService.register(registerRequest);
+        return ResponseEntity.ok("the User: "+registerRequest.getName()+" registered successfully");
+    }
+
     @PostMapping("/create")
     public ResponseEntity<UserDTO> createUser() {
         var user = new User();
