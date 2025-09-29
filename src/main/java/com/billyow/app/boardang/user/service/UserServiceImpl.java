@@ -1,5 +1,6 @@
 package com.billyow.app.boardang.user.service;
 import com.billyow.app.boardang.user.DTO.RegisterRequest;
+import com.billyow.app.boardang.user.cache.UserCacheService;
 import com.billyow.app.boardang.user.model.User;
 import com.billyow.app.boardang.user.repository.IUserRepository;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import java.util.Optional;
 public class UserServiceImpl implements IUserService{
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserCacheService userCacheService;
 
 
     @Override
@@ -26,8 +28,19 @@ public class UserServiceImpl implements IUserService{
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public User CfindByEmail(String email) {
+
+        return userCacheService.getUserByEmail(email)
+                .filter(user -> user.getIsActive())
+                .orElseGet(() ->{
+                    return userRepository.findByEmailAndIsActiveTrue(email)
+                            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                });
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
     @Override

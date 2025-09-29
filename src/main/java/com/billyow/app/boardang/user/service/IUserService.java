@@ -6,7 +6,8 @@ import com.billyow.app.boardang.user.model.User;
 import java.util.Optional;
 
 public interface IUserService {
-    Optional<User> findByEmail(String email);
+    User CfindByEmail(String email);
+    User findByEmail(String email);
     User save(User user);
     Boolean existsByEmail(String email);
     Optional<User> findById(Long id);
