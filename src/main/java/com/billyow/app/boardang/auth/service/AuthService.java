@@ -3,8 +3,10 @@ import com.billyow.app.boardang.auth.DTO.LoginRequest;
 import com.billyow.app.boardang.auth.DTO.LoginResponse;
 import com.billyow.app.boardang.auth.jwt.JwtProperties;
 import com.billyow.app.boardang.auth.jwt.JwtService;
+import com.billyow.app.boardang.user.DTO.RegisterRequest;
 import com.billyow.app.boardang.user.model.User;
 import com.billyow.app.boardang.user.repository.IUserRepository;
+import com.billyow.app.boardang.user.service.UserServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProperties jwtProperties;
+    private final UserServiceImpl userServiceImpl;
 
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmailAndIsActiveTrue(request.getEmail())
@@ -38,5 +41,9 @@ public class AuthService {
                 "Bearer",
                 jwtProperties.getExpiration()
         );
+    }
+
+    public void register(RegisterRequest request) {
+        userServiceImpl.register(request);
     }
 }
