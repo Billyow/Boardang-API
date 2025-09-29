@@ -15,6 +15,9 @@ public class UserServiceImpl implements IUserService{
 
     @Override
     public User register(RegisterRequest request) {
+        if(userRepository.existsByEmail(request.getEmail())){
+            throw new RuntimeException("Ese correo ya existe");
+        }
         User newUser = new User();
         newUser.setName(request.getName());
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));

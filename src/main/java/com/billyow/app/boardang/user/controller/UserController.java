@@ -5,7 +5,6 @@ import com.billyow.app.boardang.user.mapper.UserMapper;
 import com.billyow.app.boardang.user.model.User;
 import com.billyow.app.boardang.user.service.IUserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/user")
