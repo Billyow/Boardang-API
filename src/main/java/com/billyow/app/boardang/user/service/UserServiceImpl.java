@@ -27,20 +27,31 @@ public class UserServiceImpl implements IUserService{
         return userRepository.save(newUser);
     }
 
+
     @Override
     public User CfindByEmail(String email) {
-
-        return userCacheService.getUserByEmail(email)
-                .filter(user -> user.getIsActive())
-                .orElseGet(() ->{
-                    return userRepository.findByEmailAndIsActiveTrue(email)
+        long start = System.nanoTime();
+         var userCache=userCacheService.getUserByEmail(email)
+                .filter(User::getIsActive)
+                .orElseGet(() -> {
+                    User user = userRepository.findByEmailAndIsActiveTrue(email)
                             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                    userCacheService.cacheUserByEmail(email, user); //
+                    return user;
                 });
+         long end = System.nanoTime();
+        System.out.println(" time with cache = "+(end-start)/1_000_000);
+         return userCache;
     }
 
+
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
+        long start = System.nanoTime();
+        var user= userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        long end = System.nanoTime();
+        System.out.println(" with no cache = "+(end-start)/1_000_000);
+        return user;
     }
 
     @Override
