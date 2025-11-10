@@ -1,4 +1,4 @@
-package com.billyow.app.boardang.security;
+package com.billyow.app.boardang.auth.jwt;
 
 import com.billyow.app.boardang.user.model.User;
 import lombok.AllArgsConstructor;
@@ -46,6 +46,6 @@ public class PrincipalUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.getIsActive();
     }
 }

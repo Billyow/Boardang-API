@@ -1,10 +1,13 @@
 package com.billyow.app.boardang.user.model;
 
+import com.billyow.app.boardang.task.model.Task;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
+
 @Data
 @Entity
 public class User implements Serializable{
@@ -21,6 +24,8 @@ public class User implements Serializable{
     @Column(nullable=false,updatable = false)
     private Date createdAt;
     private Date updatedAt;
+    @ManyToMany(mappedBy = "collaborators")
+    private Set<Task> tasks;
     @PrePersist
     private void prePersist(){
         this.createdAt = new Date();

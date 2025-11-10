@@ -1,6 +1,5 @@
 package com.billyow.app.boardang.auth.jwt;
 
-import com.billyow.app.boardang.security.PrincipalUser;
 import com.billyow.app.boardang.user.repository.IUserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
