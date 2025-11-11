@@ -60,10 +60,6 @@ public class UserServiceImpl implements IUserService{
         return userRepository.save(user);
     }
 
-    @Override
-    public Boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
-    }
 
     @Override
     public Optional<User> findById(Long id) {

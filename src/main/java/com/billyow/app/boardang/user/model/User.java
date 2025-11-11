@@ -11,7 +11,7 @@ public class User implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank
+    @NotBlank(message = "User name cannot be blank")
     private String name;
     @Column(unique=true, nullable=false)
     private String email;
