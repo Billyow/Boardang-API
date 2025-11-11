@@ -1,25 +1,32 @@
 package com.billyow.app.boardang.task.model;
-import com.billyow.app.boardang.user.model.User;
-import jakarta.persistence.*;
-import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
+import java.util.Date;
+import java.util.Set;
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Document(collection = "tasks")
 public class Task {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
     private String title;
     private String description;
     private Integer priority;
-    @ManyToOne
-    @JoinColumn(name = "created_by_id")
-    private User createdBy;
-    @ManyToMany
-    @JoinTable(
-            name = "task_collaborators",
-            joinColumns = @JoinColumn(name = "task_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> collaborators;
+    private Integer position;
+
+    // relational id's
+    private Long boardId;
+    private Long columnId;
+    private Long createdBy;
+
+    //collaborators id
+    private Set<Long> collaboratorsIds;
+
+    private Date createdAt;
+    private Date updatedAt;
 }
