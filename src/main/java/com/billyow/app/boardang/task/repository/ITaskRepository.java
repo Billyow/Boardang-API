@@ -8,8 +8,10 @@ import java.util.List;
 
 @Repository
 public interface ITaskRepository extends MongoRepository<Task, Long> {
-    Task getTaskById(Long taskId);
+    Task getTaskById(String taskId);
     List<Task> getTasksByBoardId(Long boardId);
     List<Task> getTasksByColumnId(Long columnId);
     List<Task> getTasksByCollaboratorsIdsContains(Long collaboratorId);
+    void deleteTaskByBoardId(Long boardId);
+    void deleteTaskByColumnId(Long columnId);
 }

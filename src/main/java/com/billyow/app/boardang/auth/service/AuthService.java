@@ -47,15 +47,17 @@ public class AuthService {
         userServiceImpl.register(request);
     }
 
-    public String getCurrentUserEmail() {
+    //retrieves the PrincipalUser in the security context holder
+    public Long getCurrentUserId() {
+
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("User not authenticated");
         }
         var currentUser = authentication.getPrincipal();
         if (currentUser instanceof PrincipalUser) {
-            return ((PrincipalUser) currentUser).getEmail();
+            return ((PrincipalUser) currentUser).getId();
         }
-        return currentUser.toString();
+        return null;
     }
 }
