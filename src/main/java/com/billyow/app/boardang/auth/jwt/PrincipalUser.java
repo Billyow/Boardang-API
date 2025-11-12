@@ -16,6 +16,7 @@ public class PrincipalUser implements UserDetails {
     @Getter
     private final Long id;
     private final boolean isActive;
+    @Getter
     private final String email;
     private final List<GrantedAuthority> authorities;
 
@@ -28,7 +29,7 @@ public class PrincipalUser implements UserDetails {
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // here i can return the authorities when there are any
+        // here I can return the authorities when there are any
         return Collections.emptyList();
     }
 
