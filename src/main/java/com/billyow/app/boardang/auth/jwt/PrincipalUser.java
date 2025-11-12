@@ -1,32 +1,45 @@
 package com.billyow.app.boardang.auth.jwt;
 
-import com.billyow.app.boardang.user.model.User;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 // this class will be used to implement the UserDetails interface composed with my model User
-@Getter
-@AllArgsConstructor
-public class PrincipalUser implements UserDetails {
-    private final User user;
 
+
+public class PrincipalUser implements UserDetails {
+    @Getter
+    private final String name;
+    @Getter
+    private final Long id;
+    private final boolean isActive;
+    private final String email;
+    private final List<GrantedAuthority> authorities;
+
+    public PrincipalUser(Long id, String name, boolean isActive, String email, List<GrantedAuthority> authorities) {
+        this.name = name;
+        this.id = id;
+        this.isActive = isActive;
+        this.email = email;
+        this.authorities = Collections.unmodifiableList(authorities);
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        // here i can return the authorities when there are any
         return Collections.emptyList();
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return null;
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return email;
     }
 
     @Override
@@ -46,6 +59,6 @@ public class PrincipalUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return user.getIsActive();
+        return isActive;
     }
 }

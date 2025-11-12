@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Filter that intercepts requests and sets the SecurityContext if the token is valid.
@@ -53,7 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var userOptional = userRepository.findByEmailAndIsActiveTrue(userEmail);
 
             if (userOptional.isPresent() && jwtService.isTokenValid(jwt)) {
-                UserDetails userDetails = new PrincipalUser(userOptional.get());
+                var user = userOptional.get();
+                UserDetails userDetails = new PrincipalUser(user.getId(),user.getName(),user.getIsActive(),user.getEmail(), List.of());
                 var authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
