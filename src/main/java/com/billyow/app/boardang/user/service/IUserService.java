@@ -9,7 +9,6 @@ public interface IUserService {
     User CfindByEmail(String email);
     User findByEmail(String email);
     User save(User user);
-    Boolean existsByEmail(String email);
     Optional<User> findById(Long id);
     User register(RegisterRequest request);
 }
