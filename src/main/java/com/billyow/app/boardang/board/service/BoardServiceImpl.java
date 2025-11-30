@@ -9,15 +9,17 @@ import com.billyow.app.boardang.board.model.Board;
 import com.billyow.app.boardang.board.repository.IBoardRepository;
 import com.billyow.app.boardang.boardColumn.mapper.BoardColumnMapper;
 import com.billyow.app.boardang.boardColumn.repository.IBoardColumnRepository;
+import com.billyow.app.boardang.task.assembler.TaskResponseAssembler;
+import com.billyow.app.boardang.task.mapper.TaskMapper;
+import com.billyow.app.boardang.task.model.Task;
 import com.billyow.app.boardang.task.repository.ITaskRepository;
 import com.billyow.app.boardang.user.mapper.UserMapper;
 import com.billyow.app.boardang.user.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -31,6 +33,8 @@ public class BoardServiceImpl implements IBoardService {
     private final BoardMapper boardMapper;
     private final UserMapper userMapper;
     private final BoardColumnMapper boardColumnMapper;
+    private final TaskMapper taskMapper;
+    private final TaskResponseAssembler taskAssembler;
 
     @Transactional(readOnly = true)
     @Override
@@ -45,8 +49,39 @@ public class BoardServiceImpl implements IBoardService {
     @Transactional(readOnly = true)
     @Override
     public BoardResponse getBoard(Long boardId) {
-        return null;
+        var board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new RuntimeException("Board not found"));
+
+        // 1) load all the tasks at once
+        var tasks = taskRepository.getTasksByBoardId(boardId);
+
+        // 2) group by columnId
+        var tasksByColumnId = tasks.stream()
+                .collect(Collectors.groupingBy(Task::getColumnId));
+
+        var ownerResponse = userMapper.toSimpleUserDTOResponse(board.getOwner());
+
+        var memberResponses = board.getMembers().stream()
+                .map(userMapper::toSimpleUserDTOResponse)
+                .collect(Collectors.toSet());
+
+        var columnResponses = board.getColumns().stream()
+                .map(column -> {
+                    var columnTasks = tasksByColumnId.getOrDefault(column.getId(), List.of());
+                    var tasksResponse = taskAssembler.convertTasksToResponse(columnTasks);
+                    return boardColumnMapper.toResponse(column, tasksResponse);
+                })
+                .toList();
+
+        return boardMapper.toResponse(
+                board,
+                ownerResponse,
+                memberResponses,
+                columnResponses
+        );
     }
+
+
 
     @Transactional
     @Override
@@ -65,8 +100,8 @@ public class BoardServiceImpl implements IBoardService {
         //use the mappers to convert the entity into response
         return boardMapper.toResponse(newBoard,
                 ownerResponse,
-                Set.of(ownerResponse),
-                List.of()
+                new HashSet<>(),
+                new ArrayList<>()
                 );
     }
 
@@ -90,6 +125,5 @@ public class BoardServiceImpl implements IBoardService {
         }
         throw new RuntimeException("Board not found");
     }
-
 
 }
