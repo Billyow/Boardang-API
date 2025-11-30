@@ -1,7 +1,11 @@
 package com.billyow.app.boardang.user.repository;
 import com.billyow.app.boardang.user.model.User;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
 @Repository
 public class JPAUserRepositoryImpl implements IUserRepository {
     private final IJPAUserRepository userJpaRepository;
@@ -11,6 +15,11 @@ public class JPAUserRepositoryImpl implements IUserRepository {
 
     public Optional<User> findById(Long id){
         return userJpaRepository.findById(id);
+    }
+
+    @Override
+    public List<User> findAllById(Set<Long> ids) {
+        return userJpaRepository.findAllById(ids);
     }
 
     public User save(User user) {
