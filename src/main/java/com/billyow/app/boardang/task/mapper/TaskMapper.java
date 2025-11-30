@@ -14,10 +14,9 @@ public interface TaskMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "position", ignore = true)
-    @Mapping(target = "ownerId", ignore = true)
-    @Mapping(target = "collaboratorsIds", ignore = true)
-    Task toEntity(CreateTaskRequest request);
+    @Mapping(target = "ownerId", source = "ownerId")
+    @Mapping(target = "collaboratorsIds", source = "collaboratorsIds")
+    Task toEntity(CreateTaskRequest request, Long ownerId, Set<Long> collaboratorsIds);
 
     @Mapping(target = "id", source = "task.id")
     @Mapping(target = "owner", source = "owner")

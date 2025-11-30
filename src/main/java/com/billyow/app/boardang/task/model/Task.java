@@ -20,7 +20,6 @@ public class Task {
     private String title;
     private String description;
     private Integer priority;
-    private Integer position;
 
     // relational id's
     @Indexed
