@@ -11,7 +11,7 @@ public record CreateTaskRequest(
      @NotNull(message = "Must select a priority")
      Integer priority,
      @NotNull(message = "Column id not found")
-     String columnId,
+     Long columnId,
      @NotNull(message = "Board id not found")
      Long boardId
 ){}
