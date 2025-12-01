@@ -1,6 +1,7 @@
 package com.billyow.app.boardang.task.controller;
 
 import com.billyow.app.boardang.task.DTO.CreateTaskRequest;
+import com.billyow.app.boardang.task.DTO.MoveTaskRequest;
 import com.billyow.app.boardang.task.DTO.TaskResponse;
 import com.billyow.app.boardang.task.service.ITaskService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,6 @@ public class TaskController {
             @PathVariable Long boardId,
             @RequestBody CreateTaskRequest request
     ) {
-
         CreateTaskRequest adjustedRequest = new CreateTaskRequest(
                 request.title(),
                 request.description(),
@@ -31,4 +31,30 @@ public class TaskController {
         taskService.createTask(adjustedRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @PutMapping("/{taskId}/move")
+    public ResponseEntity<Void> moveTask(
+            @PathVariable Long boardId,
+            @PathVariable String taskId,
+            @RequestParam Long targetColumnId
+            ) {
+        MoveTaskRequest request = new MoveTaskRequest(
+                taskId,
+                targetColumnId,
+                boardId
+        );
+        taskService.moveTaskToColumn(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{taskId}/delete")
+    public ResponseEntity<Void> deleteTask(
+            @PathVariable Long boardId,
+            @PathVariable String taskId
+    ){
+        taskService.deleteByTaskId(taskId,boardId);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }

@@ -6,13 +6,12 @@ import com.billyow.app.boardang.board.repository.IBoardRepository;
 import com.billyow.app.boardang.boardColumn.model.BoardColumn;
 import com.billyow.app.boardang.boardColumn.repository.IBoardColumnRepository;
 import com.billyow.app.boardang.task.DTO.CreateTaskRequest;
+import com.billyow.app.boardang.task.DTO.MoveTaskRequest;
 import com.billyow.app.boardang.task.DTO.TaskResponse;
 import com.billyow.app.boardang.task.assembler.TaskResponseAssembler;
 import com.billyow.app.boardang.task.mapper.TaskMapper;
 import com.billyow.app.boardang.task.model.Task;
 import com.billyow.app.boardang.task.repository.ITaskRepository;
-import com.billyow.app.boardang.user.mapper.UserMapper;
-import com.billyow.app.boardang.user.service.IUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +22,7 @@ import java.util.List;
 public class TaskServiceImpl implements ITaskService{
     private final ITaskRepository taskRepository;
     private final AuthService authService;
-    private final IUserService userService;
     private final TaskMapper taskMapper;
-    private final UserMapper userMapper;
     private final TaskResponseAssembler taskAssembler;
     private final IBoardRepository boardRepository;
     private final IBoardColumnRepository boardColumnRepository;
@@ -37,7 +34,7 @@ public class TaskServiceImpl implements ITaskService{
                 .orElseThrow(() -> new RuntimeException("Board not found"));
 
         // validate that the column exists
-        BoardColumn column = boardColumnRepository.findById(Long.valueOf(request.columnId()))
+        BoardColumn column = boardColumnRepository.findById(request.columnId())
                 .orElseThrow(() -> new RuntimeException("Column not found"));
 
         // validate that the column belongs to the board
@@ -58,12 +55,62 @@ public class TaskServiceImpl implements ITaskService{
 
     @Override
     public void deleteByBoardColumnId(Long columnId) {
+
+    }
+
+    @Override
+    public void deleteByTaskId(String taskId,Long boardId) {
+        Task taskToDelete = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new RuntimeException("Board not found"));
+        Long currentUserId = authService.getCurrentUserId();
+
+        //validate permissions
+        validateUserCanManageTasks(board, currentUserId);
+
+        if(!board.getId()
+                .equals(taskToDelete.getBoardId())){
+            throw new RuntimeException("Board doesn't belong to task");
+        }
+
+        taskRepository.deleteById(taskToDelete.getId());
+
     }
 
     @Override
     public List<TaskResponse> getTasksByBoardColumnId(Long columnId) {
         var tasks = taskRepository.getTasksByColumnId(columnId);
         return taskAssembler.convertTasksToResponse(tasks);
+    }
+
+    @Override
+    public void moveTaskToColumn(MoveTaskRequest request) {
+        Task task = taskRepository.getTaskById(String.valueOf(request.taskId()));
+
+        if(!task.getBoardId().equals(request.boardId())) {
+            throw new RuntimeException("Task doesn't belong to board");
+        }
+
+        //validate board and permits
+        Board board = boardRepository.findById(request.boardId())
+                .orElseThrow(() -> new RuntimeException("Board not found"));
+
+        Long userId = authService.getCurrentUserId();
+        validateUserCanManageTasks(board, userId);
+
+        //validate column
+        BoardColumn newColumn = boardColumnRepository.findById(
+                request.newColumnId())
+                .orElseThrow(() -> new RuntimeException(("column not found")));
+
+        if(!newColumn.getBoard().getId().equals(board.getId())){
+            throw new RuntimeException("board doesn't belong to column");
+        }
+
+        task.setColumnId(request.newColumnId());
+
+        taskRepository.save(task);
     }
 
     private void validateUserCanManageTasks(Board board, Long currentUserId) {
