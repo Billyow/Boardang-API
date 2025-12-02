@@ -8,7 +8,6 @@ import java.util.Optional;
 public interface IUserService {
     User CfindByEmail(String email);
     User findByEmail(String email);
-    User save(User user);
     Optional<User> findById(Long id);
-    User register(RegisterRequest request);
+    void register(RegisterRequest request);
 }

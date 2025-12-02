@@ -4,6 +4,7 @@ import com.billyow.app.boardang.auth.service.AuthService;
 import com.billyow.app.boardang.board.model.Board;
 import com.billyow.app.boardang.board.repository.IBoardRepository;
 import com.billyow.app.boardang.boardColumn.DTO.BoardColumnCreateRequest;
+
 import com.billyow.app.boardang.boardColumn.mapper.BoardColumnMapper;
 import com.billyow.app.boardang.boardColumn.model.BoardColumn;
 import com.billyow.app.boardang.boardColumn.repository.IBoardColumnRepository;
@@ -11,7 +12,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
-import java.util.List;
 @Service
 @AllArgsConstructor
 public class BoardColumnServiceImpl implements IBoardColumnService{
@@ -37,10 +37,6 @@ public class BoardColumnServiceImpl implements IBoardColumnService{
 
     }
 
-    @Override
-    public List<BoardColumn> getColumnsByBoard(Long boardId) {
-        return List.of();
-    }
 
     @Override
     public void deleteColumn(Long columnId) {

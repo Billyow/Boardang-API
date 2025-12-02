@@ -6,14 +6,13 @@ import com.billyow.app.boardang.board.DTO.CreateBoardRequest;
 import com.billyow.app.boardang.board.service.IBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/board")
+@RequestMapping("/api/v1/boards")
 @RequiredArgsConstructor
-@Controller
+@RestController
 public class BoardController {
     private final IBoardService boardService;
     @PostMapping("/create")
@@ -25,7 +24,7 @@ public class BoardController {
         return ResponseEntity.ok(boardService.getCurrentUserBoards());
     }
 
-    @DeleteMapping("delete/{boardId}")
+    @DeleteMapping("/delete/{boardId}")
     public ResponseEntity<Void> deleteBoard(@PathVariable Long boardId) {
         boardService.deleteBoard(boardId);
         return ResponseEntity.noContent().build();

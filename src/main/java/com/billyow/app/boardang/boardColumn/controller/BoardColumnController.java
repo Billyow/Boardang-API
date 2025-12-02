@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/boards/{boardId}/columns")
+@RequestMapping("/api/v1/boards/{boardId}/columns")
 public class BoardColumnController {
 
     private final IBoardColumnService boardColumnService;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Void> createColumn(
             @PathVariable Long boardId,
             @RequestBody BoardColumnCreateRequest request

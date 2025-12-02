@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/board/{boardId}/tasks")
+@RequestMapping("/api/v1/boards/{boardId}/tasks")
 public class TaskController {
 
     private final ITaskService taskService;

@@ -1,6 +1,6 @@
 package com.billyow.app.boardang.UserSearch;
 import com.billyow.app.boardang.user.DTO.UserDTO;
-import com.billyow.app.boardang.user.mapper.UserMapperImpl;
+import com.billyow.app.boardang.user.mapper.UserMapper;
 import com.billyow.app.boardang.user.service.UserServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 public class UserSearchController {
     private UserServiceImpl userService;
-    private UserMapperImpl userMapper;
+    private UserMapper userMapper;
     @GetMapping("/{email}")
     public UserDTO searchForUser(@PathVariable String email){
         return userMapper.toUserDTOResponse(userService.findByEmail(email));

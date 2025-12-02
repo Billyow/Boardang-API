@@ -16,15 +16,15 @@ public class UserServiceImpl implements IUserService{
 
 
     @Override
-    public User register(RegisterRequest request) {
+    public void register(RegisterRequest request) {
         if(userRepository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("Ese correo ya existe");
+            throw new RuntimeException("email already in use");
         }
         User newUser = new User();
         newUser.setName(request.getName());
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setEmail(request.getEmail());
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
     }
 
 
@@ -35,7 +35,7 @@ public class UserServiceImpl implements IUserService{
                 .filter(User::getIsActive)
                 .orElseGet(() -> {
                     User user = userRepository.findByEmailAndIsActiveTrue(email)
-                            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                            .orElseThrow(() -> new RuntimeException("User not found"));
                     userCacheService.cacheUserByEmail(email, user); //
                     return user;
                 });
@@ -48,16 +48,10 @@ public class UserServiceImpl implements IUserService{
     public User findByEmail(String email) {
         long start = System.nanoTime();
         var user= userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
         long end = System.nanoTime();
         System.out.println(" with no cache = "+(end-start)/1_000_000);
         return user;
-    }
-
-    @Override
-    public User save(User user) {
-
-        return userRepository.save(user);
     }
 
 
