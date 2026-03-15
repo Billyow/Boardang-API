@@ -4,6 +4,7 @@ import com.billyow.app.boardang.task.DTO.CreateTaskRequest;
 import com.billyow.app.boardang.task.DTO.MoveTaskRequest;
 import com.billyow.app.boardang.task.DTO.TaskResponse;
 import com.billyow.app.boardang.task.service.ITaskService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(
             @PathVariable Long boardId,
-            @RequestBody CreateTaskRequest request
+            @Valid @RequestBody CreateTaskRequest request
     ) {
         CreateTaskRequest adjustedRequest = new CreateTaskRequest(
                 request.title(),

@@ -5,6 +5,7 @@ import com.billyow.app.boardang.board.DTO.BoardSummaryResponse;
 import com.billyow.app.boardang.board.DTO.CreateBoardRequest;
 import com.billyow.app.boardang.board.service.IBoardService;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ import java.util.List;
 public class BoardController {
     private final IBoardService boardService;
     @PostMapping("/create")
-    public ResponseEntity<BoardResponse> createBoard(@RequestBody CreateBoardRequest request) {
+    public ResponseEntity<BoardResponse> createBoard(@Valid @RequestBody CreateBoardRequest request) {
         return ResponseEntity.ok(boardService.createBoard(request));
     }
     @GetMapping("/getAllMyBoards")

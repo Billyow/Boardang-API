@@ -2,6 +2,7 @@ package com.billyow.app.boardang.boardColumn.controller;
 
 import com.billyow.app.boardang.boardColumn.DTO.BoardColumnCreateRequest;
 import com.billyow.app.boardang.boardColumn.service.IBoardColumnService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class BoardColumnController {
     @PostMapping("/create")
     public ResponseEntity<Void> createColumn(
             @PathVariable Long boardId,
-            @RequestBody BoardColumnCreateRequest request
+            @Valid @RequestBody BoardColumnCreateRequest request
     ) {
         BoardColumnCreateRequest adjustedRequest = new BoardColumnCreateRequest(
                 boardId,
