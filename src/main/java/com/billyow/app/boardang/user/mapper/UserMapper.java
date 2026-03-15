@@ -12,6 +12,7 @@ public interface UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "isActive", ignore = true)
+    @Mapping(target = "role", ignore = true)
     User toUser(RegisterRequest dto);
     UserDTO toUserDTOResponse(User user);
 

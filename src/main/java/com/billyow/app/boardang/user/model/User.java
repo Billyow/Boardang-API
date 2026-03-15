@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
+import com.billyow.app.boardang.user.model.Role;
 
 @Data
 @Entity
@@ -19,6 +20,9 @@ public class User implements Serializable{
     private String password;
     @Column(nullable=false)
     private Boolean isActive;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
     @Column(nullable=false,updatable = false)
     private Date createdAt;
     private Date updatedAt;
@@ -26,6 +30,7 @@ public class User implements Serializable{
     private void prePersist(){
         this.createdAt = new Date();
         this.isActive = true;
+        this.role = Role.USER;
     }
 
 }
