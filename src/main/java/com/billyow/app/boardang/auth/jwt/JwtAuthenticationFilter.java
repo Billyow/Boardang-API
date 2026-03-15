@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -47,7 +49,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String jwt = authHeader.substring(7);
-        final String userEmail = jwtService.extractSubject(jwt);
+        final String userEmail;
+        try {
+            userEmail = jwtService.extractSubject(jwt);
+        } catch (Exception e) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // Set authentication only if not already authenticated
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -55,7 +63,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (userOptional.isPresent() && jwtService.isTokenValid(jwt)) {
                 var user = userOptional.get();
-                UserDetails userDetails = new PrincipalUser(user.getId(),user.getName(),user.getIsActive(),user.getEmail(), List.of());
+                String role = jwtService.extractClaim(jwt, claims -> claims.get("role", String.class));
+                List<GrantedAuthority> authorities = role != null
+                        ? List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                        : List.of();
+                UserDetails userDetails = new PrincipalUser(user.getId(), user.getName(), user.getIsActive(), user.getEmail(), authorities);
                 var authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

@@ -33,7 +33,7 @@ public class AuthService {
 
         String token = jwtService.generateToken(
                 user.getEmail(),
-                Map.of("userId", user.getId(), "name", user.getName())
+                Map.of("userId", user.getId(), "name", user.getName(), "role", user.getRole().name())
         );
 
         return new LoginResponse(
@@ -58,6 +58,6 @@ public class AuthService {
         if (currentUser instanceof PrincipalUser) {
             return ((PrincipalUser) currentUser).getId();
         }
-        return null;
+        throw new RuntimeException("User not authenticated");
     }
 }

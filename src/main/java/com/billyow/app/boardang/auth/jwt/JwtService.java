@@ -8,6 +8,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -50,6 +51,13 @@ public class JwtService {
      */
     public String extractSubject(String token) {
         return parseClaims(token).getSubject();
+    }
+
+    /**
+     * Extracts a specific claim from the token using the provided resolver function.
+     */
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        return claimsResolver.apply(parseClaims(token));
     }
 
     /**
