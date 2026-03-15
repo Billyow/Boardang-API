@@ -118,7 +118,7 @@ public class TaskServiceImpl implements ITaskService{
         var isMember = board.getMembers()
                 .stream()
                 .anyMatch((user) -> user.getId().equals(currentUserId));
-        if (!isOwner || !isMember) {
+        if (!isOwner && !isMember) {
             throw new RuntimeException("you are not part of the board");
         }
     }
