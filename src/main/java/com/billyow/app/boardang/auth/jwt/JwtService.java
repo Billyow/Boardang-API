@@ -22,32 +22,47 @@ public class JwtService {
     }
 
     /**
-     * Generates a JWT token with the provided subject and extra claims.
+     * Generates a short-lived access token with the provided subject and extra claims.
      */
-    public String generateToken(String subject, Map<String, Object> extraClaims) {
-        return Jwts.builder()
-                .subject(subject)
-                .claims(extraClaims)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))
-                .signWith(key)
-                .compact();
+    public String generateAccessToken(String subject, Map<String, Object> extraClaims) {
+        Map<String, Object> claims = new java.util.HashMap<>(extraClaims);
+        claims.put("type", "access");
+        return buildToken(subject, claims, jwtProperties.getExpiration());
     }
 
     /**
-     * Returns true if the token is valid (not expired, properly signed).
+     * Generates a long-lived refresh token. Only contains the subject and type.
      */
-    public boolean isTokenValid(String token) {
+    public String generateRefreshToken(String subject) {
+        return buildToken(subject, Map.of("type", "refresh"), jwtProperties.getRefreshExpiration());
+    }
+
+    /**
+     * Returns true if the token is valid and is an access token.
+     */
+    public boolean isAccessTokenValid(String token) {
         try {
-            parseClaims(token);
-            return true;
+            Claims claims = parseClaims(token);
+            return "access".equals(claims.get("type", String.class));
         } catch (Exception e) {
             return false;
         }
     }
 
     /**
-     * Extracts the subject (typically the email or user ID) from the token.
+     * Returns true if the token is valid and is a refresh token.
+     */
+    public boolean isRefreshTokenValid(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            return "refresh".equals(claims.get("type", String.class));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Extracts the subject (email) from the token.
      */
     public String extractSubject(String token) {
         return parseClaims(token).getSubject();
@@ -60,9 +75,16 @@ public class JwtService {
         return claimsResolver.apply(parseClaims(token));
     }
 
-    /**
-     * Parses the JWT and returns its claims (payload).
-     */
+    private String buildToken(String subject, Map<String, Object> claims, long expiration) {
+        return Jwts.builder()
+                .subject(subject)
+                .claims(claims)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(key)
+                .compact();
+    }
+
     private Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(key)

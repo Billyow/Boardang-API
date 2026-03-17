@@ -14,7 +14,12 @@ public class JwtProperties {
     private String secret;
 
     /**
-     * JWT token expiration time in milliseconds.
+     * Access token expiration time in milliseconds.
      */
     private long expiration;
+
+    /**
+     * Refresh token expiration time in milliseconds.
+     */
+    private long refreshExpiration;
 }

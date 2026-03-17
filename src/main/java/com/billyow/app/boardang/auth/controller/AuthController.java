@@ -1,6 +1,7 @@
 package com.billyow.app.boardang.auth.controller;
 import com.billyow.app.boardang.auth.DTO.LoginRequest;
 import com.billyow.app.boardang.auth.DTO.LoginResponse;
+import com.billyow.app.boardang.auth.DTO.RefreshTokenRequest;
 import com.billyow.app.boardang.auth.service.AuthService;
 import com.billyow.app.boardang.user.DTO.RegisterRequest;
 import jakarta.validation.Valid;
@@ -27,5 +28,10 @@ public class AuthController {
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refresh(request));
     }
 }
