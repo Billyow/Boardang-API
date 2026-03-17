@@ -72,20 +72,24 @@ com.billyow.app.boardang
 
 ### API Routes
 
-| Method | Path | Description |
-|---|---|---|
-| POST | `/api/v1/auth/login` | Login, returns JWT |
-| POST | `/api/v1/auth/register` | Register new user |
-| GET | `/api/v1/boards/getAllMyBoards` | Current user's boards |
-| POST | `/api/v1/boards/create` | Create board |
-| GET | `/api/v1/boards/{boardId}` | Get board with columns |
-| DELETE | `/api/v1/boards/delete/{boardId}` | Delete board |
-| POST | `/api/v1/boards/{boardId}/columns/create` | Create column in board |
-| POST | `/api/v1/boards/{boardId}/tasks` | Create task |
-| PUT | `/api/v1/boards/{boardId}/tasks/{taskId}/move` | Move task to another column |
-| DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}/delete` | Delete task |
-| GET | `/user/{email}` | Find user by email (no cache) |
-| GET | `/user/cache/{email}` | Find user by email (Redis cache) |
+Public endpoints (`/api/v1/auth/**`) require no token. All others require `Authorization: Bearer <accessToken>`.
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/api/v1/auth/register` | Public | Register new user |
+| POST | `/api/v1/auth/login` | Public | Login, returns `accessToken` + `refreshToken` |
+| POST | `/api/v1/auth/refresh` | Public | Refresh tokens using `refreshToken` |
+| GET | `/api/v1/boards` | Bearer | Current user's boards |
+| POST | `/api/v1/boards` | Bearer | Create board |
+| GET | `/api/v1/boards/{boardId}` | Bearer | Get board with columns |
+| DELETE | `/api/v1/boards/{boardId}` | Bearer | Delete board |
+| POST | `/api/v1/boards/{boardId}/columns/create` | Bearer | Create column in board |
+| POST | `/api/v1/boards/{boardId}/tasks` | Bearer | Create task |
+| PUT | `/api/v1/boards/{boardId}/tasks/{taskId}/move?targetColumnId=` | Bearer | Move task to another column |
+| DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}/delete` | Bearer | Delete task |
+| GET | `/user/get/{id}` | Public | Find user by ID |
+| GET | `/user/{email}` | Public | Find user by email (no cache) |
+| GET | `/user/cache/{email}` | Public | Find user by email (Redis cache) |
 
 ### MapStruct Mappers
 
