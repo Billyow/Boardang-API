@@ -53,7 +53,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             userEmail = jwtService.extractSubject(jwt);
         } catch (Exception e) {
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
             return;
         }
 
@@ -61,7 +63,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             var userOptional = userRepository.findByEmailAndIsActiveTrue(userEmail);
 
-            if (userOptional.isPresent() && jwtService.isTokenValid(jwt)) {
+            if (!jwtService.isAccessTokenValid(jwt)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
+                return;
+            }
+
+            if (userOptional.isPresent()) {
                 var user = userOptional.get();
                 String role = jwtService.extractClaim(jwt, claims -> claims.get("role", String.class));
                 List<GrantedAuthority> authorities = role != null
@@ -71,7 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 var authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
-                        userDetails.getAuthorities() // use List.of() if roles not implemented yet
+                        userDetails.getAuthorities()
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
