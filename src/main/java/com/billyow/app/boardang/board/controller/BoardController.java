@@ -16,16 +16,17 @@ import java.util.List;
 @RestController
 public class BoardController {
     private final IBoardService boardService;
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<BoardResponse> createBoard(@Valid @RequestBody CreateBoardRequest request) {
         return ResponseEntity.ok(boardService.createBoard(request));
     }
-    @GetMapping("/getAllMyBoards")
+
+    @GetMapping
     public ResponseEntity<List<BoardSummaryResponse>> getBoards() {
         return ResponseEntity.ok(boardService.getCurrentUserBoards());
     }
 
-    @DeleteMapping("/delete/{boardId}")
+    @DeleteMapping("/{boardId}")
     public ResponseEntity<Void> deleteBoard(@PathVariable Long boardId) {
         boardService.deleteBoard(boardId);
         return ResponseEntity.noContent().build();
