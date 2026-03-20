@@ -1,6 +1,9 @@
 package com.billyow.app.boardang.boardColumn.service;
 
 import com.billyow.app.boardang.auth.service.AuthService;
+import com.billyow.app.boardang.boardColumn.DTO.BoardColumnUpdateRequest;
+import com.billyow.app.boardang.exception.ForbiddenException;
+import com.billyow.app.boardang.exception.ResourceNotFoundException;
 import com.billyow.app.boardang.board.model.Board;
 import com.billyow.app.boardang.board.repository.IBoardRepository;
 import com.billyow.app.boardang.boardColumn.DTO.BoardColumnCreateRequest;
@@ -10,8 +13,6 @@ import com.billyow.app.boardang.boardColumn.model.BoardColumn;
 import com.billyow.app.boardang.boardColumn.repository.IBoardColumnRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Comparator;
 @Service
 @AllArgsConstructor
 public class BoardColumnServiceImpl implements IBoardColumnService{
@@ -21,16 +22,13 @@ public class BoardColumnServiceImpl implements IBoardColumnService{
     private final IBoardColumnRepository boardColumnRepository;
     @Override
     public void createColumn(BoardColumnCreateRequest request){
-        var board = boardRepository.findById(request.boardId()).orElseThrow(() -> new RuntimeException("Board not found"));
+        var board = boardRepository.findById(request.boardId()).orElseThrow(() -> new ResourceNotFoundException("Board not found"));
         var currentUser = authService.getCurrentUserId();
         validateUserCanManageColumns(board, currentUser);
 
         //calculate the next position
-        int nextPosition = board.getColumns()
-                .stream()
-                .map(BoardColumn::getPosition)
-                .max(Comparator.naturalOrder())
-                .orElse(0)+1;
+        Integer maxPosition = boardColumnRepository.getMaxPositionByBoardId(request.boardId());
+        int nextPosition = (maxPosition == null ? 0 : maxPosition) + 1;
 
         var boardEntity = boardColumnMapper.toBoardColumn(request, board, nextPosition);
         boardColumnRepository.save(boardEntity);
@@ -40,17 +38,25 @@ public class BoardColumnServiceImpl implements IBoardColumnService{
 
     @Override
     public void deleteColumn(Long columnId) {
-
+        var column = boardColumnRepository.findById(columnId).orElseThrow(() -> new ResourceNotFoundException("Column not found"));
+        var user = authService.getCurrentUserId();
+        validateUserCanManageColumns(column.getBoard(), user);
+        boardColumnRepository.deleteById(columnId);
     }
 
     @Override
-    public BoardColumn updateColumn(String columnTitle, Long boardColumnId) {
-        return null;
+    public void updateColumn(BoardColumnUpdateRequest request, Long boardColumnId) {
+        var column = boardColumnRepository.findById(boardColumnId).orElseThrow(() -> new ResourceNotFoundException("Column not found"));
+        var user = authService.getCurrentUserId();
+        validateUserCanManageColumns(column.getBoard(), user);
+        column.setTitle(request.title());
+        column.setPosition(request.position());
+        boardColumnRepository.save(column);
     }
 
     @Override
     public Integer getColumnCountByBoardId(Long boardId) {
-        return 0;
+        return boardColumnRepository.countByBoard_Id(boardId);
     }
 
     private void validateUserCanManageColumns(Board board, Long currentUserId){
@@ -60,7 +66,7 @@ public class BoardColumnServiceImpl implements IBoardColumnService{
                 .stream()
                 .anyMatch(member -> member.getId().equals(currentUserId));
         if(!isOwner && !isMember){
-            throw new RuntimeException("You are not part of this board");
+            throw new ForbiddenException("You are not part of this board");
         }
     }
 }

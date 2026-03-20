@@ -13,5 +13,9 @@ public interface IBoardColumnRepository extends JpaRepository<BoardColumn, Long>
     SELECT MAX(c.position) FROM BoardColumn c
     WHERE c.board.id = :boardId
 """)
-     int getMaxPositionByBoardId(@Param("boardId")Long boardId);
+     Integer getMaxPositionByBoardId(@Param("boardId")Long boardId);
+
+     Integer countByBoard_Id(Long boardId);
+
+     Boolean existsByIdAndBoard_Id(Long columnId, Long boardId);
 }
