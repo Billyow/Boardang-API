@@ -32,4 +32,5 @@ JOIN b.members m
 WHERE b.id = :boardId AND m.id = :userId
 """)
     Optional<Board> findBoardByIdAndUserHasAccess(@Param("boardId") Long boardId, @Param("userId") Long userId);
+
 }

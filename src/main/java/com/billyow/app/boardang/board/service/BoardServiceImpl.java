@@ -1,6 +1,8 @@
 package com.billyow.app.boardang.board.service;
 
 import com.billyow.app.boardang.auth.service.AuthService;
+import com.billyow.app.boardang.exception.ForbiddenException;
+import com.billyow.app.boardang.exception.ResourceNotFoundException;
 import com.billyow.app.boardang.board.DTO.BoardResponse;
 import com.billyow.app.boardang.board.DTO.BoardSummaryResponse;
 import com.billyow.app.boardang.board.DTO.CreateBoardRequest;
@@ -13,6 +15,7 @@ import com.billyow.app.boardang.task.assembler.TaskResponseAssembler;
 import com.billyow.app.boardang.task.mapper.TaskMapper;
 import com.billyow.app.boardang.task.model.Task;
 import com.billyow.app.boardang.task.repository.ITaskRepository;
+import com.billyow.app.boardang.user.DTO.SimpleUserDTO;
 import com.billyow.app.boardang.user.mapper.UserMapper;
 import com.billyow.app.boardang.user.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +53,7 @@ public class BoardServiceImpl implements IBoardService {
     @Override
     public BoardResponse getBoard(Long boardId) {
         var board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new RuntimeException("Board not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
 
         // 1) load all the tasks at once
         var tasks = taskRepository.getTasksByBoardId(boardId);
@@ -92,7 +95,7 @@ public class BoardServiceImpl implements IBoardService {
         newBoard.setDescription(request.description());
         var currentUserId = authService.getCurrentUserId();
         var owner = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         newBoard.setOwner(owner);
         newBoard.getMembers().add(owner);
         boardRepository.save(newBoard);
@@ -105,25 +108,62 @@ public class BoardServiceImpl implements IBoardService {
                 );
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Set<SimpleUserDTO> getMembers(Long boardId) {
+        var board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
+        return board.getMembers().stream()
+                .map(userMapper::toSimpleUserDTOResponse)
+                .collect(Collectors.toSet());
+    }
+
+    @Transactional
+    @Override
+    public void addMember(Long boardId, String email) {
+        var board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
+        var currentUserId = authService.getCurrentUserId();
+        if (!board.getOwner().getId().equals(currentUserId)) {
+            throw new ForbiddenException("Only the board owner can add members");
+        }
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        board.getMembers().add(user);
+        boardRepository.save(board);
+    }
+
+    @Transactional
+    @Override
+    public void removeMember(Long boardId, Long userId) {
+        var board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
+        var currentUserId = authService.getCurrentUserId();
+        if (!board.getOwner().getId().equals(currentUserId)) {
+            throw new ForbiddenException("Only the board owner can remove members");
+        }
+        if (board.getOwner().getId().equals(userId)) {
+            throw new ForbiddenException("Cannot remove the board owner");
+        }
+        board.getMembers().removeIf(m -> m.getId().equals(userId));
+        boardRepository.save(board);
+    }
+
     @Transactional
     @Override
     public void deleteBoard(Long boardId) {
         Long currentUserId = authService.getCurrentUserId();
         var affected = boardRepository.deleteByIdAndOwnerId(boardId,currentUserId);
         if(affected==1){
-            try{
                 columnRepository.deleteByBoard_Id(boardId);
                 taskRepository.deleteTaskByBoardId(boardId);
-            }catch (Exception e){
-                throw new RuntimeException("Error deleting tasks or columns",e);
-            }
             return;
         }
         // differentiate 403 from 404
         if(boardRepository.existsById(boardId)){
-            throw new RuntimeException("User is not the owner of this board");
+            throw new ForbiddenException("User is not the owner of this board");
         }
-        throw new RuntimeException("Board not found");
+        throw new ResourceNotFoundException("Board not found");
     }
 
 }
