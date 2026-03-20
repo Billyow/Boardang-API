@@ -1,4 +1,6 @@
 package com.billyow.app.boardang.user.service;
+import com.billyow.app.boardang.exception.ConflictException;
+import com.billyow.app.boardang.exception.ResourceNotFoundException;
 import com.billyow.app.boardang.user.DTO.RegisterRequest;
 import com.billyow.app.boardang.user.cache.UserCacheService;
 import com.billyow.app.boardang.user.model.User;
@@ -18,7 +20,7 @@ public class UserServiceImpl implements IUserService{
     @Override
     public void register(RegisterRequest request) {
         if(userRepository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("email already in use");
+            throw new ConflictException("email already in use");
         }
         User newUser = new User();
         newUser.setName(request.getName());
@@ -35,12 +37,11 @@ public class UserServiceImpl implements IUserService{
                 .filter(User::getIsActive)
                 .orElseGet(() -> {
                     User user = userRepository.findByEmailAndIsActiveTrue(email)
-                            .orElseThrow(() -> new RuntimeException("User not found"));
+                            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
                     userCacheService.cacheUserByEmail(email, user); //
                     return user;
                 });
          long end = System.nanoTime();
-        System.out.println(" time with cache = "+(end-start)/1_000_000);
          return userCache;
     }
 
@@ -48,9 +49,8 @@ public class UserServiceImpl implements IUserService{
     public User findByEmail(String email) {
         long start = System.nanoTime();
         var user= userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         long end = System.nanoTime();
-        System.out.println(" with no cache = "+(end-start)/1_000_000);
         return user;
     }
 

@@ -6,6 +6,8 @@ import com.billyow.app.boardang.auth.jwt.JwtProperties;
 import com.billyow.app.boardang.auth.jwt.JwtService;
 import com.billyow.app.boardang.auth.jwt.PrincipalUser;
 import com.billyow.app.boardang.user.DTO.RegisterRequest;
+import com.billyow.app.boardang.exception.ForbiddenException;
+import com.billyow.app.boardang.exception.InvalidCredentialsException;
 import com.billyow.app.boardang.user.model.User;
 import com.billyow.app.boardang.user.service.UserServiceImpl;
 import lombok.AllArgsConstructor;
@@ -26,13 +28,13 @@ public class AuthService {
     private final UserServiceImpl userServiceImpl;
 
     public LoginResponse login(LoginRequest request) {
-        User user = userService.CfindByEmail(request.getEmail());
+        User user = userService.findByEmail(request.getEmail());
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
 
-        Map<String, Object> claims = Map.of("userId", user.getId(), "name", user.getName(), "role", user.getRole().name());
+        Map<String, Object> claims = Map.of("userId", user.getId(), "name", user.getName(), "email", user.getEmail(), "role", user.getRole().name());
         String accessToken = jwtService.generateAccessToken(user.getEmail(), claims);
         String refreshToken = jwtService.generateRefreshToken(user.getEmail());
 
@@ -49,13 +51,13 @@ public class AuthService {
         String token = request.getRefreshToken();
 
         if (!jwtService.isRefreshTokenValid(token)) {
-            throw new RuntimeException("Invalid or expired refresh token");
+            throw new InvalidCredentialsException("Invalid or expired refresh token");
         }
 
         String email = jwtService.extractSubject(token);
         User user = userService.CfindByEmail(email);
 
-        Map<String, Object> claims = Map.of("userId", user.getId(), "name", user.getName(), "role", user.getRole().name());
+        Map<String, Object> claims = Map.of("userId", user.getId(), "name", user.getName(), "email", user.getEmail(), "role", user.getRole().name());
         String newAccessToken = jwtService.generateAccessToken(email, claims);
         String newRefreshToken = jwtService.generateRefreshToken(email);
 
@@ -77,7 +79,7 @@ public class AuthService {
 
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("User not authenticated");
+            throw new ForbiddenException("User not authenticated");
         }
         var currentUser = authentication.getPrincipal();
         if (currentUser instanceof PrincipalUser) {
