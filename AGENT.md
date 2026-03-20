@@ -62,6 +62,19 @@ com.billyow.app.boardang
 3. `JwtAuthenticationFilter` validates the token and sets a `PrincipalUser` into `SecurityContextHolder`
 4. Services call `authService.getCurrentUserId()` to get the authenticated user's PostgreSQL ID
 
+### Access Token Claims
+
+The JWT access token payload includes the following claims:
+
+| Claim | Type | Description |
+|---|---|---|
+| `sub` | String | User's email (JWT standard subject) |
+| `type` | String | Always `"access"` |
+| `userId` | Long | User's PostgreSQL ID |
+| `name` | String | User's display name |
+| `email` | String | User's email (explicit claim, mirrors `sub`) |
+| `role` | String | User's role (e.g. `"USER"`, `"ADMIN"`) |
+
 ### User Repository Pattern
 
 `IUserRepository` is a custom interface implemented by `JPAUserRepositoryImpl`, which also extends `IJPAUserRepository` (Spring Data JPA). This indirection keeps the service layer decoupled from JPA specifics.
@@ -81,12 +94,22 @@ Public endpoints (`/api/v1/auth/**`) require no token. All others require `Autho
 | POST | `/api/v1/auth/refresh` | Public | Refresh tokens using `refreshToken` |
 | GET | `/api/v1/boards` | Bearer | Current user's boards |
 | POST | `/api/v1/boards` | Bearer | Create board |
-| GET | `/api/v1/boards/{boardId}` | Bearer | Get board with columns |
-| DELETE | `/api/v1/boards/{boardId}` | Bearer | Delete board |
-| POST | `/api/v1/boards/{boardId}/columns/create` | Bearer | Create column in board |
+| GET | `/api/v1/boards/{boardId}` | Bearer | Get board with columns and tasks |
+| DELETE | `/api/v1/boards/{boardId}` | Bearer | Delete board (owner only) |
+| GET | `/api/v1/boards/{boardId}/members` | Bearer | Get board members |
+| POST | `/api/v1/boards/{boardId}/members` | Bearer | Add member by email (owner only) |
+| DELETE | `/api/v1/boards/{boardId}/members/{userId}` | Bearer | Remove member (owner only) |
+| POST | `/api/v1/boards/{boardId}/columns` | Bearer | Create column in board |
+| DELETE | `/api/v1/boards/{boardId}/columns/{columnId}` | Bearer | Delete column |
+| PUT | `/api/v1/boards/{boardId}/columns/{columnId}` | Bearer | Update column title/position |
+| GET | `/api/v1/boards/{boardId}/columns/count` | Bearer | Get column count for board |
 | POST | `/api/v1/boards/{boardId}/tasks` | Bearer | Create task |
-| PUT | `/api/v1/boards/{boardId}/tasks/{taskId}/move?targetColumnId=` | Bearer | Move task to another column |
-| DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}/delete` | Bearer | Delete task |
+| PATCH | `/api/v1/boards/{boardId}/tasks/{taskId}` | Bearer | Update task fields (title, description, priority) |
+| PUT | `/api/v1/boards/{boardId}/tasks/{taskId}/column?targetColumnId=` | Bearer | Move task to another column |
+| DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}` | Bearer | Delete task |
+| POST | `/api/v1/boards/{boardId}/tasks/{taskId}/collaborators/{collaboratorId}` | Bearer | Assign collaborator to task |
+| DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}/collaborators/{collaboratorId}` | Bearer | Unassign collaborator from task |
+| GET | `/api/v1/tasks/me` | Bearer | Get all tasks assigned to current user |
 | GET | `/user/get/{id}` | Public | Find user by ID |
 | GET | `/user/{email}` | Public | Find user by email (no cache) |
 | GET | `/user/cache/{email}` | Public | Find user by email (Redis cache) |
