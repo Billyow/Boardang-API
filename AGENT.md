@@ -105,7 +105,7 @@ Public endpoints (`/api/v1/auth/**`) require no token. All others require `Autho
 | GET | `/api/v1/boards/{boardId}/columns/count` | Bearer | Get column count for board |
 | POST | `/api/v1/boards/{boardId}/tasks` | Bearer | Create task |
 | PATCH | `/api/v1/boards/{boardId}/tasks/{taskId}` | Bearer | Update task fields (title, description, priority) |
-| PUT | `/api/v1/boards/{boardId}/tasks/{taskId}/column?targetColumnId=` | Bearer | Move task to another column |
+| PUT | `/api/v1/boards/{boardId}/tasks/{taskId}/column` | Bearer | Move task to another column — body: `{ "newColumnId": Long }` |
 | DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}` | Bearer | Delete task |
 | POST | `/api/v1/boards/{boardId}/tasks/{taskId}/collaborators/{collaboratorId}` | Bearer | Assign collaborator to task |
 | DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}/collaborators/{collaboratorId}` | Bearer | Unassign collaborator from task |
@@ -116,4 +116,4 @@ Public endpoints (`/api/v1/auth/**`) require no token. All others require `Autho
 
 ### MapStruct Mappers
 
-Mappers are generated at compile time. When adding fields to entities/DTOs, update the corresponding `@Mapper` interface. The `TaskMapper` takes extra parameters (`ownerId`, `collaboratorsIds`) beyond the DTO — check `TaskMapper.toEntity()` signature before modifying.
+Mappers are generated at compile time. When adding fields to entities/DTOs, update the corresponding `@Mapper` interface. The `TaskMapper.toEntity()` takes extra parameters beyond the DTO — `boardId`, `ownerId`, and `collaboratorsIds` — since these come from path variables or service logic, not the request body.
