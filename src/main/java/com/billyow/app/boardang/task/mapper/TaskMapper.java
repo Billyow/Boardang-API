@@ -14,9 +14,10 @@ public interface TaskMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "boardId", source = "boardId")
     @Mapping(target = "ownerId", source = "ownerId")
     @Mapping(target = "collaboratorsIds", source = "collaboratorsIds")
-    Task toEntity(CreateTaskRequest request, Long ownerId, Set<Long> collaboratorsIds);
+    Task toEntity(CreateTaskRequest request, Long boardId, Long ownerId, Set<Long> collaboratorsIds);
 
     @Mapping(target = "id", source = "task.id")
     @Mapping(target = "owner", source = "owner")

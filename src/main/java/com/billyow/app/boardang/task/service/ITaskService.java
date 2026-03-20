@@ -8,11 +8,11 @@ import com.billyow.app.boardang.task.DTO.UpdateTaskRequest;
 import java.util.List;
 
 public interface ITaskService {
-    void createTask(CreateTaskRequest request);
+    void createTask(Long boardId, CreateTaskRequest request);
     void deleteByTaskId(String taskId, Long boardId);
-    void updateTask(UpdateTaskRequest request);
+    void updateTask(String taskId, UpdateTaskRequest request);
     List<TaskResponse> getTasksByCurrentUser();
-    void moveTaskToColumn(MoveTaskRequest request);
+    void moveTaskToColumn(String taskId, Long boardId, MoveTaskRequest request);
     void assignCollaborator(String taskId, Long boardId, Long collaboratorId);
     void unassignCollaborator(String taskId, Long boardId, Long collaboratorId);
 }

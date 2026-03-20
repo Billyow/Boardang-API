@@ -22,14 +22,7 @@ public class TaskController {
             @PathVariable Long boardId,
             @Valid @RequestBody CreateTaskRequest request
     ) {
-        CreateTaskRequest adjustedRequest = new CreateTaskRequest(
-                request.title(),
-                request.description(),
-                request.priority(),
-                request.columnId(),
-                boardId
-        );
-        taskService.createTask(adjustedRequest);
+        taskService.createTask(boardId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -46,10 +39,9 @@ public class TaskController {
     public ResponseEntity<Void> moveTask(
             @PathVariable Long boardId,
             @PathVariable String taskId,
-            @RequestParam Long targetColumnId
+            @RequestBody MoveTaskRequest request
     ) {
-        MoveTaskRequest request = new MoveTaskRequest(taskId, targetColumnId, boardId);
-        taskService.moveTaskToColumn(request);
+        taskService.moveTaskToColumn(taskId, boardId, request);
         return ResponseEntity.noContent().build();
     }
 

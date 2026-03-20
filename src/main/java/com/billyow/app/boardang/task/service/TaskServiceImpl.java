@@ -6,7 +6,6 @@ import com.billyow.app.boardang.exception.ForbiddenException;
 import com.billyow.app.boardang.exception.ResourceNotFoundException;
 import com.billyow.app.boardang.board.model.Board;
 import com.billyow.app.boardang.board.repository.IBoardRepository;
-import com.billyow.app.boardang.boardColumn.model.BoardColumn;
 import com.billyow.app.boardang.boardColumn.repository.IBoardColumnRepository;
 import com.billyow.app.boardang.task.DTO.CreateTaskRequest;
 import com.billyow.app.boardang.task.DTO.MoveTaskRequest;
@@ -36,14 +35,14 @@ public class TaskServiceImpl implements ITaskService{
     private final IBoardColumnRepository boardColumnRepository;
 
     @Override
-    public void createTask(CreateTaskRequest request) {
-        if(!boardColumnRepository.existsByIdAndBoard_Id(request.columnId(), request.boardId())) {
+    public void createTask(Long boardId, CreateTaskRequest request) {
+        if(!boardColumnRepository.existsByIdAndBoard_Id(request.columnId(), boardId)) {
             throw new BadRequestException("Column doesn't belong to board or is not found");
         }
-        var board = boardRepository.findById(request.boardId()).orElseThrow(() -> new ResourceNotFoundException("Board not found"));
+        var board = boardRepository.findById(boardId).orElseThrow(() -> new ResourceNotFoundException("Board not found"));
         var userId = authService.getCurrentUserId();
-        validateUserCanManageTasks(board,userId);
-        var task = taskMapper.toEntity(request,userId, new HashSet<>());
+        validateUserCanManageTasks(board, userId);
+        var task = taskMapper.toEntity(request, boardId, userId, new HashSet<>());
         taskRepository.save(task);
     }
 
@@ -68,9 +67,9 @@ public class TaskServiceImpl implements ITaskService{
     }
 
     @Override
-    public void updateTask(UpdateTaskRequest request) {
+    public void updateTask(String taskId, UpdateTaskRequest request) {
 
-        var task = Optional.of(taskRepository.getTaskById(request.id())).orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+        var task = Optional.of(taskRepository.getTaskById(taskId)).orElseThrow(() -> new ResourceNotFoundException("Task not found"));
         var board = boardRepository.findById(task.getBoardId()).orElseThrow(() -> new ResourceNotFoundException("Board not found"));
         validateUserCanManageTasks(board,authService.getCurrentUserId());
         if (request.title() != null) task.setTitle(request.title());
@@ -87,32 +86,25 @@ public class TaskServiceImpl implements ITaskService{
     }
 
     @Override
-    public void moveTaskToColumn(MoveTaskRequest request) {
-        //validate board and permits
-        Board board = boardRepository.findById(request.boardId())
+    public void moveTaskToColumn(String taskId, Long boardId, MoveTaskRequest request) {
+        Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
 
         Long userId = authService.getCurrentUserId();
         validateUserCanManageTasks(board, userId);
 
-        Task task = taskRepository.getTaskById(String.valueOf(request.taskId()));
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-        if(!task.getBoardId().equals(request.boardId())) {
+        if(!task.getBoardId().equals(boardId)) {
             throw new BadRequestException("Task doesn't belong to board");
         }
 
-
-        //validate column
-        BoardColumn newColumn = boardColumnRepository.findById(
-                request.newColumnId())
-                .orElseThrow(() -> new ResourceNotFoundException("column not found"));
-
-        if(!newColumn.getBoard().getId().equals(board.getId())){
-            throw new BadRequestException("board doesn't belong to column");
+        if(!boardColumnRepository.existsByIdAndBoard_Id(request.newColumnId(), boardId)){
+            throw new BadRequestException("Column doesn't belong to board or is not found");
         }
 
         task.setColumnId(request.newColumnId());
-
         taskRepository.save(task);
     }
 
