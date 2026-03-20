@@ -2,7 +2,7 @@ package com.billyow.app.boardang.task.controller;
 
 import com.billyow.app.boardang.task.DTO.CreateTaskRequest;
 import com.billyow.app.boardang.task.DTO.MoveTaskRequest;
-import com.billyow.app.boardang.task.DTO.TaskResponse;
+import com.billyow.app.boardang.task.DTO.UpdateTaskRequest;
 import com.billyow.app.boardang.task.service.ITaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class TaskController {
     private final ITaskService taskService;
 
     @PostMapping
-    public ResponseEntity<TaskResponse> createTask(
+    public ResponseEntity<Void> createTask(
             @PathVariable Long boardId,
             @Valid @RequestBody CreateTaskRequest request
     ) {
@@ -33,29 +33,52 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PutMapping("/{taskId}/move")
+    @PatchMapping("/{taskId}")
+    public ResponseEntity<Void> updateTask(
+            @PathVariable String taskId,
+            @RequestBody UpdateTaskRequest request
+    ) {
+        taskService.updateTask(taskId, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{taskId}/column")
     public ResponseEntity<Void> moveTask(
             @PathVariable Long boardId,
             @PathVariable String taskId,
             @RequestParam Long targetColumnId
-            ) {
-        MoveTaskRequest request = new MoveTaskRequest(
-                taskId,
-                targetColumnId,
-                boardId
-        );
+    ) {
+        MoveTaskRequest request = new MoveTaskRequest(taskId, targetColumnId, boardId);
         taskService.moveTaskToColumn(request);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{taskId}/delete")
+    @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(
             @PathVariable Long boardId,
             @PathVariable String taskId
-    ){
-        taskService.deleteByTaskId(taskId,boardId);
+    ) {
+        taskService.deleteByTaskId(taskId, boardId);
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{taskId}/collaborators/{collaboratorId}")
+    public ResponseEntity<Void> assignCollaborator(
+            @PathVariable Long boardId,
+            @PathVariable String taskId,
+            @PathVariable Long collaboratorId
+    ) {
+        taskService.assignCollaborator(taskId, boardId, collaboratorId);
+        return ResponseEntity.noContent().build();
+    }
 
+    @DeleteMapping("/{taskId}/collaborators/{collaboratorId}")
+    public ResponseEntity<Void> unassignCollaborator(
+            @PathVariable Long boardId,
+            @PathVariable String taskId,
+            @PathVariable Long collaboratorId
+    ) {
+        taskService.unassignCollaborator(taskId, boardId, collaboratorId);
+        return ResponseEntity.noContent().build();
+    }
 }
