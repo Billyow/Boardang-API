@@ -1,6 +1,7 @@
 package com.billyow.app.boardang.boardColumn.controller;
 
 import com.billyow.app.boardang.boardColumn.DTO.BoardColumnCreateRequest;
+import com.billyow.app.boardang.boardColumn.DTO.BoardColumnResponse;
 import com.billyow.app.boardang.boardColumn.DTO.BoardColumnUpdateRequest;
 import com.billyow.app.boardang.boardColumn.service.IBoardColumnService;
 import jakarta.validation.Valid;
@@ -17,7 +18,7 @@ public class BoardColumnController {
     private final IBoardColumnService boardColumnService;
 
     @PostMapping
-    public ResponseEntity<Void> createColumn(
+    public ResponseEntity<BoardColumnResponse> createColumn(
             @PathVariable Long boardId,
             @Valid @RequestBody BoardColumnCreateRequest request
     ) {
@@ -26,8 +27,7 @@ public class BoardColumnController {
                 request.title()
         );
 
-        boardColumnService.createColumn(adjustedRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(boardColumnService.createColumn(adjustedRequest));
     }
 
     @DeleteMapping("/{columnId}")
@@ -37,12 +37,11 @@ public class BoardColumnController {
     }
 
     @PutMapping("/{columnId}")
-    public ResponseEntity<Void> updateColumn(
+    public ResponseEntity<BoardColumnResponse> updateColumn(
             @PathVariable Long columnId,
             @RequestBody BoardColumnUpdateRequest request
     ) {
-        boardColumnService.updateColumn(request, columnId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(boardColumnService.updateColumn(request, columnId));
     }
 
     @GetMapping("/count")

@@ -9,5 +9,5 @@ public interface IUserService {
     User CfindByEmail(String email);
     User findByEmail(String email);
     Optional<User> findById(Long id);
-    void register(RegisterRequest request);
+    User register(RegisterRequest request);
 }

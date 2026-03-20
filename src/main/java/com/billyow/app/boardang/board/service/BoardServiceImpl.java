@@ -120,7 +120,7 @@ public class BoardServiceImpl implements IBoardService {
 
     @Transactional
     @Override
-    public void addMember(Long boardId, String email) {
+    public Set<SimpleUserDTO> addMember(Long boardId, String email) {
         var board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
         var currentUserId = authService.getCurrentUserId();
@@ -131,6 +131,9 @@ public class BoardServiceImpl implements IBoardService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         board.getMembers().add(user);
         boardRepository.save(board);
+        return board.getMembers().stream()
+                .map(userMapper::toSimpleUserDTOResponse)
+                .collect(Collectors.toSet());
     }
 
     @Transactional

@@ -18,7 +18,7 @@ public class UserServiceImpl implements IUserService{
 
 
     @Override
-    public void register(RegisterRequest request) {
+    public User register(RegisterRequest request) {
         if(userRepository.existsByEmail(request.getEmail())){
             throw new ConflictException("email already in use");
         }
@@ -27,6 +27,7 @@ public class UserServiceImpl implements IUserService{
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setEmail(request.getEmail());
         userRepository.save(newUser);
+        return newUser;
     }
 
 

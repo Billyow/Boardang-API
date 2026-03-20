@@ -14,6 +14,6 @@ public interface IBoardService {
     BoardResponse getBoard(Long boardId);
     void deleteBoard(Long boardId);
     Set<SimpleUserDTO> getMembers(Long boardId);
-    void addMember(Long boardId, String email);
+    Set<SimpleUserDTO> addMember(Long boardId, String email);
     void removeMember(Long boardId, Long userId);
 }

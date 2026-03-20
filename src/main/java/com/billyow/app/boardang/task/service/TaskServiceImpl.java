@@ -35,7 +35,7 @@ public class TaskServiceImpl implements ITaskService{
     private final IBoardColumnRepository boardColumnRepository;
 
     @Override
-    public void createTask(Long boardId, CreateTaskRequest request) {
+    public TaskResponse createTask(Long boardId, CreateTaskRequest request) {
         if(!boardColumnRepository.existsByIdAndBoard_Id(request.columnId(), boardId)) {
             throw new BadRequestException("Column doesn't belong to board or is not found");
         }
@@ -44,6 +44,7 @@ public class TaskServiceImpl implements ITaskService{
         validateUserCanManageTasks(board, userId);
         var task = taskMapper.toEntity(request, boardId, userId, new HashSet<>());
         taskRepository.save(task);
+        return taskAssembler.convertTasksToResponse(List.of(task)).get(0);
     }
 
     @Override
@@ -67,7 +68,7 @@ public class TaskServiceImpl implements ITaskService{
     }
 
     @Override
-    public void updateTask(String taskId, UpdateTaskRequest request) {
+    public TaskResponse updateTask(String taskId, UpdateTaskRequest request) {
 
         var task = Optional.of(taskRepository.getTaskById(taskId)).orElseThrow(() -> new ResourceNotFoundException("Task not found"));
         var board = boardRepository.findById(task.getBoardId()).orElseThrow(() -> new ResourceNotFoundException("Board not found"));
@@ -76,6 +77,7 @@ public class TaskServiceImpl implements ITaskService{
         if (request.description() != null) task.setDescription(request.description());
         if (request.priority() != null) task.setPriority(request.priority());
         taskRepository.save(task);
+        return taskAssembler.convertTasksToResponse(List.of(task)).get(0);
     }
 
     @Override
@@ -86,7 +88,7 @@ public class TaskServiceImpl implements ITaskService{
     }
 
     @Override
-    public void moveTaskToColumn(String taskId, Long boardId, MoveTaskRequest request) {
+    public TaskResponse moveTaskToColumn(String taskId, Long boardId, MoveTaskRequest request) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
 
@@ -106,10 +108,11 @@ public class TaskServiceImpl implements ITaskService{
 
         task.setColumnId(request.newColumnId());
         taskRepository.save(task);
+        return taskAssembler.convertTasksToResponse(List.of(task)).get(0);
     }
 
     @Override
-    public void assignCollaborator(String taskId, Long boardId, Long collaboratorId) {
+    public TaskResponse assignCollaborator(String taskId, Long boardId, Long collaboratorId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
 
@@ -131,10 +134,11 @@ public class TaskServiceImpl implements ITaskService{
 
         task.getCollaboratorsIds().add(collaboratorId);
         taskRepository.save(task);
+        return taskAssembler.convertTasksToResponse(List.of(task)).get(0);
     }
 
     @Override
-    public void unassignCollaborator(String taskId, Long boardId, Long collaboratorId) {
+    public TaskResponse unassignCollaborator(String taskId, Long boardId, Long collaboratorId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
 
@@ -150,6 +154,7 @@ public class TaskServiceImpl implements ITaskService{
 
         task.getCollaboratorsIds().remove(collaboratorId);
         taskRepository.save(task);
+        return taskAssembler.convertTasksToResponse(List.of(task)).get(0);
     }
 
     private void validateUserCanManageTasks(Board board, Long currentUserId) {

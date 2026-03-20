@@ -57,7 +57,7 @@ com.billyow.app.boardang
 
 ### Authentication Flow
 
-1. `POST /api/v1/auth/register` or `POST /api/v1/auth/login` → returns JWT
+1. `POST /api/v1/auth/register` → returns `UserDTO` (201); `POST /api/v1/auth/login` → returns `LoginResponse` with JWT
 2. All subsequent requests include `Authorization: Bearer <token>`
 3. `JwtAuthenticationFilter` validates the token and sets a `PrincipalUser` into `SecurityContextHolder`
 4. Services call `authService.getCurrentUserId()` to get the authenticated user's PostgreSQL ID
@@ -87,32 +87,32 @@ The JWT access token payload includes the following claims:
 
 Public endpoints (`/api/v1/auth/**`) require no token. All others require `Authorization: Bearer <accessToken>`.
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/api/v1/auth/register` | Public | Register new user |
-| POST | `/api/v1/auth/login` | Public | Login, returns `accessToken` + `refreshToken` |
-| POST | `/api/v1/auth/refresh` | Public | Refresh tokens using `refreshToken` |
-| GET | `/api/v1/boards` | Bearer | Current user's boards |
-| POST | `/api/v1/boards` | Bearer | Create board |
-| GET | `/api/v1/boards/{boardId}` | Bearer | Get board with columns and tasks |
-| DELETE | `/api/v1/boards/{boardId}` | Bearer | Delete board (owner only) |
-| GET | `/api/v1/boards/{boardId}/members` | Bearer | Get board members |
-| POST | `/api/v1/boards/{boardId}/members` | Bearer | Add member by email (owner only) |
-| DELETE | `/api/v1/boards/{boardId}/members/{userId}` | Bearer | Remove member (owner only) |
-| POST | `/api/v1/boards/{boardId}/columns` | Bearer | Create column in board |
-| DELETE | `/api/v1/boards/{boardId}/columns/{columnId}` | Bearer | Delete column |
-| PUT | `/api/v1/boards/{boardId}/columns/{columnId}` | Bearer | Update column title/position |
-| GET | `/api/v1/boards/{boardId}/columns/count` | Bearer | Get column count for board |
-| POST | `/api/v1/boards/{boardId}/tasks` | Bearer | Create task |
-| PATCH | `/api/v1/boards/{boardId}/tasks/{taskId}` | Bearer | Update task fields (title, description, priority) |
-| PUT | `/api/v1/boards/{boardId}/tasks/{taskId}/column` | Bearer | Move task to another column — body: `{ "newColumnId": Long }` |
-| DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}` | Bearer | Delete task |
-| POST | `/api/v1/boards/{boardId}/tasks/{taskId}/collaborators/{collaboratorId}` | Bearer | Assign collaborator to task |
-| DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}/collaborators/{collaboratorId}` | Bearer | Unassign collaborator from task |
-| GET | `/api/v1/tasks/me` | Bearer | Get all tasks assigned to current user |
-| GET | `/user/get/{id}` | Public | Find user by ID |
-| GET | `/user/{email}` | Public | Find user by email (no cache) |
-| GET | `/user/cache/{email}` | Public | Find user by email (Redis cache) |
+| Method | Path | Auth | Response | Description |
+|---|---|---|---|---|
+| POST | `/api/v1/auth/register` | Public | `UserDTO` (201) | Register new user |
+| POST | `/api/v1/auth/login` | Public | `LoginResponse` (200) | Login, returns `accessToken` + `refreshToken` |
+| POST | `/api/v1/auth/refresh` | Public | `LoginResponse` (200) | Refresh tokens using `refreshToken` |
+| GET | `/api/v1/boards` | Bearer | `List<BoardSummaryResponse>` (200) | Current user's boards |
+| POST | `/api/v1/boards` | Bearer | `BoardResponse` (201) | Create board |
+| GET | `/api/v1/boards/{boardId}` | Bearer | `BoardResponse` (200) | Get board with columns and tasks |
+| DELETE | `/api/v1/boards/{boardId}` | Bearer | `204` | Delete board (owner only) |
+| GET | `/api/v1/boards/{boardId}/members` | Bearer | `Set<SimpleUserDTO>` (200) | Get board members |
+| POST | `/api/v1/boards/{boardId}/members` | Bearer | `Set<SimpleUserDTO>` (200) | Add member by email (owner only), returns updated member set |
+| DELETE | `/api/v1/boards/{boardId}/members/{userId}` | Bearer | `204` | Remove member (owner only) |
+| POST | `/api/v1/boards/{boardId}/columns` | Bearer | `BoardColumnResponse` (201) | Create column in board |
+| DELETE | `/api/v1/boards/{boardId}/columns/{columnId}` | Bearer | `204` | Delete column |
+| PUT | `/api/v1/boards/{boardId}/columns/{columnId}` | Bearer | `BoardColumnResponse` (200) | Update column title/position, returns column with its tasks |
+| GET | `/api/v1/boards/{boardId}/columns/count` | Bearer | `Integer` (200) | Get column count for board |
+| POST | `/api/v1/boards/{boardId}/tasks` | Bearer | `TaskResponse` (201) | Create task |
+| PATCH | `/api/v1/boards/{boardId}/tasks/{taskId}` | Bearer | `TaskResponse` (200) | Update task fields (title, description, priority) |
+| PUT | `/api/v1/boards/{boardId}/tasks/{taskId}/column` | Bearer | `TaskResponse` (200) | Move task to another column — body: `{ "newColumnId": Long }` |
+| DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}` | Bearer | `204` | Delete task |
+| POST | `/api/v1/boards/{boardId}/tasks/{taskId}/collaborators/{collaboratorId}` | Bearer | `TaskResponse` (200) | Assign collaborator to task |
+| DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}/collaborators/{collaboratorId}` | Bearer | `TaskResponse` (200) | Unassign collaborator from task |
+| GET | `/api/v1/tasks/me` | Bearer | `List<TaskResponse>` (200) | Get all tasks assigned to current user |
+| GET | `/user/get/{id}` | Public | `User` (200) | Find user by ID |
+| GET | `/user/{email}` | Public | `User` (200) | Find user by email (no cache) |
+| GET | `/user/cache/{email}` | Public | `User` (200) | Find user by email (Redis cache) |
 
 ### MapStruct Mappers
 

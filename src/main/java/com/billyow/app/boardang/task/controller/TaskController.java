@@ -2,6 +2,7 @@ package com.billyow.app.boardang.task.controller;
 
 import com.billyow.app.boardang.task.DTO.CreateTaskRequest;
 import com.billyow.app.boardang.task.DTO.MoveTaskRequest;
+import com.billyow.app.boardang.task.DTO.TaskResponse;
 import com.billyow.app.boardang.task.DTO.UpdateTaskRequest;
 import com.billyow.app.boardang.task.service.ITaskService;
 import jakarta.validation.Valid;
@@ -18,31 +19,28 @@ public class TaskController {
     private final ITaskService taskService;
 
     @PostMapping
-    public ResponseEntity<Void> createTask(
+    public ResponseEntity<TaskResponse> createTask(
             @PathVariable Long boardId,
             @Valid @RequestBody CreateTaskRequest request
     ) {
-        taskService.createTask(boardId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(boardId, request));
     }
 
     @PatchMapping("/{taskId}")
-    public ResponseEntity<Void> updateTask(
+    public ResponseEntity<TaskResponse> updateTask(
             @PathVariable String taskId,
             @RequestBody UpdateTaskRequest request
     ) {
-        taskService.updateTask(taskId, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(taskService.updateTask(taskId, request));
     }
 
     @PutMapping("/{taskId}/column")
-    public ResponseEntity<Void> moveTask(
+    public ResponseEntity<TaskResponse> moveTask(
             @PathVariable Long boardId,
             @PathVariable String taskId,
             @RequestBody MoveTaskRequest request
     ) {
-        taskService.moveTaskToColumn(taskId, boardId, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(taskService.moveTaskToColumn(taskId, boardId, request));
     }
 
     @DeleteMapping("/{taskId}")
@@ -55,22 +53,20 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/collaborators/{collaboratorId}")
-    public ResponseEntity<Void> assignCollaborator(
+    public ResponseEntity<TaskResponse> assignCollaborator(
             @PathVariable Long boardId,
             @PathVariable String taskId,
             @PathVariable Long collaboratorId
     ) {
-        taskService.assignCollaborator(taskId, boardId, collaboratorId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(taskService.assignCollaborator(taskId, boardId, collaboratorId));
     }
 
     @DeleteMapping("/{taskId}/collaborators/{collaboratorId}")
-    public ResponseEntity<Void> unassignCollaborator(
+    public ResponseEntity<TaskResponse> unassignCollaborator(
             @PathVariable Long boardId,
             @PathVariable String taskId,
             @PathVariable Long collaboratorId
     ) {
-        taskService.unassignCollaborator(taskId, boardId, collaboratorId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(taskService.unassignCollaborator(taskId, boardId, collaboratorId));
     }
 }

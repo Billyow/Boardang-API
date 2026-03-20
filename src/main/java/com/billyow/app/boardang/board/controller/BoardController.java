@@ -48,12 +48,11 @@ public class BoardController {
     }
 
     @PostMapping("/{boardId}/members")
-    public ResponseEntity<Void> addMember(
+    public ResponseEntity<Set<SimpleUserDTO>> addMember(
             @PathVariable Long boardId,
             @Valid @RequestBody AddMemberRequest request
     ) {
-        boardService.addMember(boardId, request.email());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(boardService.addMember(boardId, request.email()));
     }
 
     @DeleteMapping("/{boardId}/members/{userId}")

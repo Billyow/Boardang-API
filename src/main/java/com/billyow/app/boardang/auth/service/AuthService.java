@@ -6,8 +6,10 @@ import com.billyow.app.boardang.auth.jwt.JwtProperties;
 import com.billyow.app.boardang.auth.jwt.JwtService;
 import com.billyow.app.boardang.auth.jwt.PrincipalUser;
 import com.billyow.app.boardang.user.DTO.RegisterRequest;
+import com.billyow.app.boardang.user.DTO.UserDTO;
 import com.billyow.app.boardang.exception.ForbiddenException;
 import com.billyow.app.boardang.exception.InvalidCredentialsException;
+import com.billyow.app.boardang.user.mapper.UserMapper;
 import com.billyow.app.boardang.user.model.User;
 import com.billyow.app.boardang.user.service.UserServiceImpl;
 import lombok.AllArgsConstructor;
@@ -26,6 +28,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProperties jwtProperties;
     private final UserServiceImpl userServiceImpl;
+    private final UserMapper userMapper;
 
     public LoginResponse login(LoginRequest request) {
         User user = userService.findByEmail(request.getEmail());
@@ -70,8 +73,9 @@ public class AuthService {
         );
     }
 
-    public void register(RegisterRequest request) {
-        userServiceImpl.register(request);
+    public UserDTO register(RegisterRequest request) {
+        User user = userServiceImpl.register(request);
+        return userMapper.toUserDTOResponse(user);
     }
 
     //retrieves the PrincipalUser in the security context holder

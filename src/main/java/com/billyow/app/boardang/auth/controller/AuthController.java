@@ -4,6 +4,7 @@ import com.billyow.app.boardang.auth.DTO.LoginResponse;
 import com.billyow.app.boardang.auth.DTO.RefreshTokenRequest;
 import com.billyow.app.boardang.auth.service.AuthService;
 import com.billyow.app.boardang.user.DTO.RegisterRequest;
+import com.billyow.app.boardang.user.DTO.UserDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +26,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest request) {
-        authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<UserDTO> register(@Valid @RequestBody RegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
     }
 
     @PostMapping("/refresh")
