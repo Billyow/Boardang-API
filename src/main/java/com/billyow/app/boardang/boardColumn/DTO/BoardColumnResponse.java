@@ -7,6 +7,6 @@ import java.util.List;
 public record BoardColumnResponse(
         Long id,
         String title,
-        Integer position,
+        Double position,
         List<TaskResponse> tasks
 ){}

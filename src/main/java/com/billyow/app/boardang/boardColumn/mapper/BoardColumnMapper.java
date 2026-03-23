@@ -19,5 +19,5 @@ public interface BoardColumnMapper {
     @Mapping(target = "position", source = "position")
     @Mapping(target = "board", source = "board")
     @Mapping(target = "title" , source = "request.title")
-    BoardColumn toBoardColumn(BoardColumnCreateRequest request, Board board, Integer position);
+    BoardColumn toBoardColumn(BoardColumnCreateRequest request, Board board, Double position);
 }

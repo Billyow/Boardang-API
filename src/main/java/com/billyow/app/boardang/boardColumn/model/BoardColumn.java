@@ -17,7 +17,7 @@ public class BoardColumn {
     @Column(nullable = false)
     private String title;
     @Column(nullable = false)
-    private Integer position;
+    private Double position;
     @ManyToOne
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;

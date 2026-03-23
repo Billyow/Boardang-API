@@ -3,6 +3,7 @@ package com.billyow.app.boardang.boardColumn.controller;
 import com.billyow.app.boardang.boardColumn.DTO.BoardColumnCreateRequest;
 import com.billyow.app.boardang.boardColumn.DTO.BoardColumnResponse;
 import com.billyow.app.boardang.boardColumn.DTO.BoardColumnUpdateRequest;
+import com.billyow.app.boardang.boardColumn.DTO.MoveColumnRequest;
 import com.billyow.app.boardang.boardColumn.service.IBoardColumnService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,15 @@ public class BoardColumnController {
             @RequestBody BoardColumnUpdateRequest request
     ) {
         return ResponseEntity.ok(boardColumnService.updateColumn(request, columnId));
+    }
+
+    @PatchMapping("/{columnId}/move")
+    public ResponseEntity<BoardColumnResponse> moveColumn(
+            @PathVariable Long boardId,
+            @PathVariable Long columnId,
+            @RequestBody MoveColumnRequest request
+    ) {
+        return ResponseEntity.ok(boardColumnService.moveColumn(columnId, boardId, request));
     }
 
     @GetMapping("/count")

@@ -34,7 +34,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.updateTask(taskId, request));
     }
 
-    @PutMapping("/{taskId}/column")
+    @PatchMapping("/{taskId}/move")
     public ResponseEntity<TaskResponse> moveTask(
             @PathVariable Long boardId,
             @PathVariable String taskId,

@@ -102,10 +102,11 @@ Public endpoints (`/api/v1/auth/**`) require no token. All others require `Autho
 | POST | `/api/v1/boards/{boardId}/columns` | Bearer | `BoardColumnResponse` (201) | Create column in board |
 | DELETE | `/api/v1/boards/{boardId}/columns/{columnId}` | Bearer | `204` | Delete column |
 | PUT | `/api/v1/boards/{boardId}/columns/{columnId}` | Bearer | `BoardColumnResponse` (200) | Update column title/position, returns column with its tasks |
+| PATCH | `/api/v1/boards/{boardId}/columns/{columnId}/move` | Bearer | `BoardColumnResponse` (200) | Move column using fractional positioning — body: `{ "afterColumnId": Long\|null, "beforeColumnId": Long\|null }` (at least one required) |
 | GET | `/api/v1/boards/{boardId}/columns/count` | Bearer | `Integer` (200) | Get column count for board |
 | POST | `/api/v1/boards/{boardId}/tasks` | Bearer | `TaskResponse` (201) | Create task |
 | PATCH | `/api/v1/boards/{boardId}/tasks/{taskId}` | Bearer | `TaskResponse` (200) | Update task fields (title, description, priority) |
-| PUT | `/api/v1/boards/{boardId}/tasks/{taskId}/column` | Bearer | `TaskResponse` (200) | Move task to another column — body: `{ "newColumnId": Long }` |
+| PATCH | `/api/v1/boards/{boardId}/tasks/{taskId}/move` | Bearer | `TaskResponse` (200) | Move task to another column — body: `{ "newColumnId": Long }` |
 | DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}` | Bearer | `204` | Delete task |
 | POST | `/api/v1/boards/{boardId}/tasks/{taskId}/collaborators/{collaboratorId}` | Bearer | `TaskResponse` (200) | Assign collaborator to task |
 | DELETE | `/api/v1/boards/{boardId}/tasks/{taskId}/collaborators/{collaboratorId}` | Bearer | `TaskResponse` (200) | Unassign collaborator from task |

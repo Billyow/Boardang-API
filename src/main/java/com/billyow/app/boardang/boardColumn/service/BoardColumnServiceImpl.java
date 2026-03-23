@@ -3,11 +3,13 @@ package com.billyow.app.boardang.boardColumn.service;
 import com.billyow.app.boardang.auth.service.AuthService;
 import com.billyow.app.boardang.boardColumn.DTO.BoardColumnResponse;
 import com.billyow.app.boardang.boardColumn.DTO.BoardColumnUpdateRequest;
+import com.billyow.app.boardang.exception.BadRequestException;
 import com.billyow.app.boardang.exception.ForbiddenException;
 import com.billyow.app.boardang.exception.ResourceNotFoundException;
 import com.billyow.app.boardang.board.model.Board;
 import com.billyow.app.boardang.board.repository.IBoardRepository;
 import com.billyow.app.boardang.boardColumn.DTO.BoardColumnCreateRequest;
+import com.billyow.app.boardang.boardColumn.DTO.MoveColumnRequest;
 import com.billyow.app.boardang.boardColumn.mapper.BoardColumnMapper;
 import com.billyow.app.boardang.boardColumn.model.BoardColumn;
 import com.billyow.app.boardang.boardColumn.repository.IBoardColumnRepository;
@@ -33,8 +35,8 @@ public class BoardColumnServiceImpl implements IBoardColumnService{
         validateUserCanManageColumns(board, currentUser);
 
         //calculate the next position
-        Integer maxPosition = boardColumnRepository.getMaxPositionByBoardId(request.boardId());
-        int nextPosition = (maxPosition == null ? 0 : maxPosition) + 1;
+        Double maxPosition = boardColumnRepository.getMaxPositionByBoardId(request.boardId());
+        double nextPosition = (maxPosition == null ? 0.0 : maxPosition) + 1.0;
 
         var boardEntity = boardColumnMapper.toBoardColumn(request, board, nextPosition);
         boardColumnRepository.save(boardEntity);
@@ -66,6 +68,46 @@ public class BoardColumnServiceImpl implements IBoardColumnService{
     @Override
     public Integer getColumnCountByBoardId(Long boardId) {
         return boardColumnRepository.countByBoard_Id(boardId);
+    }
+
+    @Override
+    public BoardColumnResponse moveColumn(Long columnId, Long boardId, MoveColumnRequest request) {
+        if (request.afterColumnId() == null && request.beforeColumnId() == null) {
+            throw new BadRequestException("At least one of afterColumnId or beforeColumnId must be provided");
+        }
+
+        var column = boardColumnRepository.findById(columnId).orElseThrow(() -> new ResourceNotFoundException("Column not found"));
+        validateUserCanManageColumns(column.getBoard(), authService.getCurrentUserId());
+
+        Double afterPosition = null;
+        Double beforePosition = null;
+
+        if (request.afterColumnId() != null) {
+            afterPosition = boardColumnRepository.findById(request.afterColumnId())
+                    .orElseThrow(() -> new ResourceNotFoundException("After column not found"))
+                    .getPosition();
+        }
+
+        if (request.beforeColumnId() != null) {
+            beforePosition = boardColumnRepository.findById(request.beforeColumnId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Before column not found"))
+                    .getPosition();
+        }
+
+        double newPosition;
+        if (afterPosition != null && beforePosition != null) {
+            newPosition = (afterPosition + beforePosition) / 2.0;
+        } else if (afterPosition != null) {
+            newPosition = afterPosition + 1.0;
+        } else {
+            newPosition = beforePosition - 1.0;
+        }
+
+        column.setPosition(newPosition);
+        boardColumnRepository.save(column);
+        var tasks = taskRepository.getTasksByColumnId(columnId);
+        var taskResponses = taskAssembler.convertTasksToResponse(tasks);
+        return boardColumnMapper.toResponse(column, taskResponses);
     }
 
     private void validateUserCanManageColumns(Board board, Long currentUserId){
