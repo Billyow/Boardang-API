@@ -33,13 +33,8 @@ public class Board {
     private List<BoardColumn> columns = new ArrayList<>();
 
 
-    @ManyToMany
-    @JoinTable(
-            name = "board_members",
-            joinColumns = @JoinColumn(name = "board_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> members = new HashSet<>();
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<BoardMember> members = new HashSet<>();
 
     @PrePersist
     void onCreate() {
