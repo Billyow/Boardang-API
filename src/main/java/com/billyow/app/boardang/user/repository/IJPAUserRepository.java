@@ -6,4 +6,5 @@ public interface IJPAUserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     Optional<User> findByEmailAndIsActiveTrue(String email);
     Boolean existsByEmail(String email);
+    Optional<User> findByIdAndIsActiveTrue(Long id);
 }

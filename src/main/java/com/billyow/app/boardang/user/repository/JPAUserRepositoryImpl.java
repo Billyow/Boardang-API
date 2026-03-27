@@ -13,8 +13,8 @@ public class JPAUserRepositoryImpl implements IUserRepository {
         this.userJpaRepository = userJpaRepository;
     }
 
-    public Optional<User> findById(Long id){
-        return userJpaRepository.findById(id);
+    public Optional<User> findByIdAndIsActive(Long id){
+        return userJpaRepository.findByIdAndIsActiveTrue(id);
     }
 
     @Override
@@ -38,5 +38,10 @@ public class JPAUserRepositoryImpl implements IUserRepository {
     @Override
     public Boolean existsByEmail(String email) {
         return userJpaRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        return userJpaRepository.findById(id);
     }
 }
