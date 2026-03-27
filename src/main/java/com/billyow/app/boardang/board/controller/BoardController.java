@@ -1,11 +1,11 @@
 package com.billyow.app.boardang.board.controller;
 
 import com.billyow.app.boardang.board.DTO.AddMemberRequest;
+import com.billyow.app.boardang.board.DTO.BoardMemberResponse;
 import com.billyow.app.boardang.board.DTO.BoardResponse;
 import com.billyow.app.boardang.board.DTO.BoardSummaryResponse;
 import com.billyow.app.boardang.board.DTO.CreateBoardRequest;
 import com.billyow.app.boardang.board.service.IBoardService;
-import com.billyow.app.boardang.user.DTO.SimpleUserDTO;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -43,12 +43,12 @@ public class BoardController {
     }
 
     @GetMapping("/{boardId}/members")
-    public ResponseEntity<Set<SimpleUserDTO>> getMembers(@PathVariable Long boardId) {
+    public ResponseEntity<Set<BoardMemberResponse>> getMembers(@PathVariable Long boardId) {
         return ResponseEntity.ok(boardService.getMembers(boardId));
     }
 
     @PostMapping("/{boardId}/members")
-    public ResponseEntity<Set<SimpleUserDTO>> addMember(
+    public ResponseEntity<Set<BoardMemberResponse>> addMember(
             @PathVariable Long boardId,
             @Valid @RequestBody AddMemberRequest request
     ) {

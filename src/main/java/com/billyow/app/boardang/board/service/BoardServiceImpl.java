@@ -3,11 +3,14 @@ package com.billyow.app.boardang.board.service;
 import com.billyow.app.boardang.auth.service.AuthService;
 import com.billyow.app.boardang.exception.ForbiddenException;
 import com.billyow.app.boardang.exception.ResourceNotFoundException;
+import com.billyow.app.boardang.board.DTO.BoardMemberResponse;
 import com.billyow.app.boardang.board.DTO.BoardResponse;
 import com.billyow.app.boardang.board.DTO.BoardSummaryResponse;
 import com.billyow.app.boardang.board.DTO.CreateBoardRequest;
 import com.billyow.app.boardang.board.mapper.BoardMapper;
 import com.billyow.app.boardang.board.model.Board;
+import com.billyow.app.boardang.board.model.BoardMember;
+import com.billyow.app.boardang.board.model.BoardRole;
 import com.billyow.app.boardang.board.repository.IBoardRepository;
 import com.billyow.app.boardang.boardColumn.mapper.BoardColumnMapper;
 import com.billyow.app.boardang.boardColumn.repository.IBoardColumnRepository;
@@ -15,7 +18,6 @@ import com.billyow.app.boardang.task.assembler.TaskResponseAssembler;
 import com.billyow.app.boardang.task.mapper.TaskMapper;
 import com.billyow.app.boardang.task.model.Task;
 import com.billyow.app.boardang.task.repository.ITaskRepository;
-import com.billyow.app.boardang.user.DTO.SimpleUserDTO;
 import com.billyow.app.boardang.user.mapper.UserMapper;
 import com.billyow.app.boardang.user.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +67,7 @@ public class BoardServiceImpl implements IBoardService {
         var ownerResponse = userMapper.toSimpleUserDTOResponse(board.getOwner());
 
         var memberResponses = board.getMembers().stream()
-                .map(userMapper::toSimpleUserDTOResponse)
+                .map(m -> new BoardMemberResponse(userMapper.toSimpleUserDTOResponse(m.getUser()), m.getRole().name()))
                 .collect(Collectors.toSet());
 
         var columnResponses = board.getColumns().stream()
@@ -97,7 +99,11 @@ public class BoardServiceImpl implements IBoardService {
         var owner = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         newBoard.setOwner(owner);
-        newBoard.getMembers().add(owner);
+        var ownerMember = new BoardMember();
+        ownerMember.setBoard(newBoard);
+        ownerMember.setUser(owner);
+        ownerMember.setRole(BoardRole.ADMIN);
+        newBoard.getMembers().add(ownerMember);
         boardRepository.save(newBoard);
         var ownerResponse = userMapper.toSimpleUserDTOResponse(owner);
         //use the mappers to convert the entity into response
@@ -110,17 +116,17 @@ public class BoardServiceImpl implements IBoardService {
 
     @Transactional(readOnly = true)
     @Override
-    public Set<SimpleUserDTO> getMembers(Long boardId) {
+    public Set<BoardMemberResponse> getMembers(Long boardId) {
         var board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
         return board.getMembers().stream()
-                .map(userMapper::toSimpleUserDTOResponse)
+                .map(m -> new BoardMemberResponse(userMapper.toSimpleUserDTOResponse(m.getUser()), m.getRole().name()))
                 .collect(Collectors.toSet());
     }
 
     @Transactional
     @Override
-    public Set<SimpleUserDTO> addMember(Long boardId, String email) {
+    public Set<BoardMemberResponse> addMember(Long boardId, String email) {
         var board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
         var currentUserId = authService.getCurrentUserId();
@@ -129,10 +135,14 @@ public class BoardServiceImpl implements IBoardService {
         }
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        board.getMembers().add(user);
+        var newMember = new BoardMember();
+        newMember.setBoard(board);
+        newMember.setUser(user);
+        newMember.setRole(BoardRole.MEMBER);
+        board.getMembers().add(newMember);
         boardRepository.save(board);
         return board.getMembers().stream()
-                .map(userMapper::toSimpleUserDTOResponse)
+                .map(m -> new BoardMemberResponse(userMapper.toSimpleUserDTOResponse(m.getUser()), m.getRole().name()))
                 .collect(Collectors.toSet());
     }
 
@@ -148,7 +158,7 @@ public class BoardServiceImpl implements IBoardService {
         if (board.getOwner().getId().equals(userId)) {
             throw new ForbiddenException("Cannot remove the board owner");
         }
-        board.getMembers().removeIf(m -> m.getId().equals(userId));
+        board.getMembers().removeIf(m -> m.getUser().getId().equals(userId));
         boardRepository.save(board);
     }
 

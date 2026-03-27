@@ -14,6 +14,6 @@ public record BoardResponse(
         Date updatedAt,
         SimpleUserDTO owner,
         List<BoardColumnResponse> columns,
-        Set<SimpleUserDTO> members
+        Set<BoardMemberResponse> members
 ) {
 }
