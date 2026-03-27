@@ -18,6 +18,10 @@ public class TaskController {
 
     private final ITaskService taskService;
 
+    @GetMapping("/{taskId}")
+    public ResponseEntity<TaskResponse> getTask(@PathVariable String taskId) {
+        return ResponseEntity.ok(taskService.getTaskDetails(taskId));
+    }
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(
             @PathVariable Long boardId,

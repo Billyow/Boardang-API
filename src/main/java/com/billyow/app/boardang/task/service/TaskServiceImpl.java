@@ -36,6 +36,13 @@ public class TaskServiceImpl implements ITaskService{
     private final IBoardMemberRepository memberRepository;
 
     @Override
+    public TaskResponse getTaskDetails(String id) {
+        var task = Optional.ofNullable(taskRepository.getTaskById(id))
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+        return taskAssembler.convertTasksToResponse(List.of(task)).get(0);
+    }
+
+    @Override
     public TaskResponse createTask(Long boardId, CreateTaskRequest request) {
         if(!boardColumnRepository.existsByIdAndBoard_Id(request.columnId(), boardId)) {
             throw new BadRequestException("Column doesn't belong to board or is not found");

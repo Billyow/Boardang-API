@@ -8,6 +8,7 @@ import com.billyow.app.boardang.task.DTO.UpdateTaskRequest;
 import java.util.List;
 
 public interface ITaskService {
+    TaskResponse getTaskDetails(String id);
     TaskResponse createTask(Long boardId, CreateTaskRequest request);
     void deleteByTaskId(String taskId, Long boardId);
     TaskResponse updateTask(String taskId, UpdateTaskRequest request);
