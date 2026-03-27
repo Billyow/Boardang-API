@@ -115,7 +115,7 @@ public class BoardColumnServiceImpl implements IBoardColumnService{
 
         var isMember = board.getMembers()
                 .stream()
-                .anyMatch(member -> member.getId().equals(currentUserId));
+                .anyMatch(member -> member.getUser().getId().equals(currentUserId));
         if(!isOwner && !isMember){
             throw new ForbiddenException("You are not part of this board");
         }
