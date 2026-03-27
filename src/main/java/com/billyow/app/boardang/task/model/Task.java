@@ -27,7 +27,7 @@ public class Task {
     @Indexed
     private Long columnId;
     @Indexed
-    private Long ownerId;
+    private Long createdById;
 
     //collaborators id
     @Indexed

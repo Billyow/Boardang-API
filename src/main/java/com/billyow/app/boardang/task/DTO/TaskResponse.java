@@ -6,6 +6,6 @@ public record TaskResponse(String id,
                            String title,
                            String description,
                            Integer priority,
-                           SimpleUserDTO owner,
+                           SimpleUserDTO createdBy,
                            Set<SimpleUserDTO> collaborators){
 }

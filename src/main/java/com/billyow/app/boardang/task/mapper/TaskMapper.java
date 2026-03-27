@@ -15,12 +15,12 @@ public interface TaskMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "boardId", source = "boardId")
-    @Mapping(target = "ownerId", source = "ownerId")
+    @Mapping(target = "createdById", source = "createdById")
     @Mapping(target = "collaboratorsIds", source = "collaboratorsIds")
-    Task toEntity(CreateTaskRequest request, Long boardId, Long ownerId, Set<Long> collaboratorsIds);
+    Task toEntity(CreateTaskRequest request, Long boardId, Long createdById, Set<Long> collaboratorsIds);
 
     @Mapping(target = "id", source = "task.id")
-    @Mapping(target = "owner", source = "owner")
+    @Mapping(target = "createdBy", source = "createdBy")
     @Mapping(target = "collaborators", source = "collaborators")
-    TaskResponse toResponse(Task task, SimpleUserDTO owner, Set<SimpleUserDTO> collaborators);
+    TaskResponse toResponse(Task task, SimpleUserDTO createdBy, Set<SimpleUserDTO> collaborators);
 }

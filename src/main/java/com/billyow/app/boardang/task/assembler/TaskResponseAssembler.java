@@ -38,7 +38,7 @@ public class TaskResponseAssembler {
                                     : Stream.empty();
 
                     return Stream.concat(
-                            Stream.of(task.getOwnerId()),
+                            Stream.of(task.getCreatedById()),
                             collaboratorsIds
                     );
                 })
@@ -59,10 +59,10 @@ public class TaskResponseAssembler {
         return tasks.stream()
                 .map(task -> {
 
-                    // Owner
-                    var owner = usersById.get(task.getOwnerId());
-                    if (owner == null) {
-                        throw new RuntimeException("Owner not found for task with ownerId: " + task.getOwnerId());
+                    // Creator
+                    var createdBy = usersById.get(task.getCreatedById());
+                    if (createdBy == null) {
+                        throw new RuntimeException("Creator not found for task with createdById: " + task.getCreatedById());
                     }
 
                     // Collaborators
@@ -77,7 +77,7 @@ public class TaskResponseAssembler {
                                 .collect(Collectors.toSet());
                     }
 
-                    return taskMapper.toResponse(task, owner, members);
+                    return taskMapper.toResponse(task, createdBy, members);
                 })
                 .collect(Collectors.toList());
     }
